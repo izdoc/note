@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practice Test #6</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#1c1d1f;color:#fff;min-height:100vh}
+
+/* Header */
+.header{background:#2d2f31;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #3e4143;position:sticky;top:0;z-index:100}
+.header h1{font-size:16px;font-weight:600;color:#fff;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.header-right{display:flex;align-items:center;gap:12px}
+.timer{font-size:14px;color:#a435f0;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums;transition:color .3s,text-shadow .3s}
+.timer.urgent{color:#ef4444;animation:timerPulse 1s ease-in-out infinite}
+.timer.critical{color:#ef4444;text-shadow:0 0 12px rgba(239,68,68,.6);animation:timerPulse .5s ease-in-out infinite}
+@keyframes timerPulse{0%,100%{opacity:1}50%{opacity:.5}}
+.live-score{font-size:13px;font-weight:600;padding:4px 12px;border-radius:6px;background:rgba(16,185,129,.12);color:#10b981;white-space:nowrap;transition:all .3s}
+.live-score.failing{background:rgba(239,68,68,.12);color:#ef4444}
+
+/* Buttons */
+.btn{padding:8px 16px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn-primary{background:#a435f0;color:#fff}.btn-primary:hover{background:#8710d8;box-shadow:0 4px 12px rgba(164,53,240,.3)}
+.btn-outline{background:transparent;color:#a435f0;border:1px solid #a435f0}.btn-outline:hover{background:rgba(164,53,240,.08)}
+.btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}
+.btn-success{background:#10b981;color:#fff}.btn-success:hover{background:#059669}
+.btn-check{background:#6366f1;color:#fff;padding:10px 28px;font-size:15px;border-radius:8px}.btn-check:hover{background:#4f46e5;box-shadow:0 4px 12px rgba(99,102,241,.3)}
+.btn-ghost{background:transparent;color:#6b7280;border:1px solid #3e4143;font-size:12px;padding:6px 12px}.btn-ghost:hover{border-color:#6b7280;color:#a0a0a0}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* Layout */
+.main{max-width:900px;margin:0 auto;padding:24px}
+
+/* Progress */
+.progress-row{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.progress-bar{background:#3e4143;border-radius:8px;height:6px;overflow:hidden;flex:1}
+.progress-fill{height:100%;background:linear-gradient(90deg,#a435f0,#6d28d9);border-radius:8px;transition:width .4s ease}
+.progress-counter{font-size:12px;color:#a0a0a0;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* Question */
+.question-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.q-number{font-size:14px;color:#a0a0a0}.q-section{font-size:12px;color:#a435f0;background:rgba(164,53,240,.08);padding:4px 10px;border-radius:12px}
+.q-type{font-size:13px;color:#f59e0b;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.question-text{font-size:16px;line-height:1.6;margin-bottom:24px;color:#e0e0e0}
+.question-text p{margin-bottom:10px}
+
+.question-text img{max-width:100%;border-radius:8px;margin:8px 0}
+.question-text ul{margin-left:24px;margin-bottom:16px}
+.question-text li{margin-bottom:6px}
+
+/* Answers */
+.answers{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.answer{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border:2px solid #3e4143;border-radius:8px;cursor:pointer;transition:all .2s;background:#2d2f31;position:relative}
+.answer:hover:not(.locked){border-color:#6d28d9;background:rgba(45,47,49,.6);transform:translateX(2px)}
+.answer.just-selected{animation:answerPulse .3s ease}
+@keyframes answerPulse{0%{transform:scale(1)}50%{transform:scale(1.01)}100%{transform:scale(1)}}
+.answer.selected{border-color:#a435f0;background:rgba(164,53,240,.08)}
+.answer.correct{border-color:#10b981;background:rgba(16,185,129,.07)}
+.answer.incorrect{border-color:#ef4444;background:rgba(239,68,68,.07)}
+.answer.missed{border-color:#f59e0b;background:rgba(245,158,11,.06)}
+.answer.locked{cursor:default}
+
+/* Answer label tags */
+.answer-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;margin-left:auto;flex-shrink:0;white-space:nowrap;letter-spacing:.3px;user-select:all}
+.answer-tag.tag-correct{background:rgba(16,185,129,.15);color:#10b981}
+.answer-tag.tag-wrong{background:rgba(239,68,68,.15);color:#ef4444}
+.answer-tag.tag-missed{background:rgba(245,158,11,.15);color:#f59e0b}
+
+/* Radio indicator (single-answer) */
+.answer-indicator{min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid #6b7280;flex-shrink:0;margin-top:3px;transition:all .2s}
+.answer-indicator .dot{width:10px;height:10px;border-radius:50%;background:#a435f0;display:none}
+.answer.selected .answer-indicator{border-color:#a435f0}.answer.selected .answer-indicator .dot{display:block}
+.answer.correct .answer-indicator{border-color:#10b981;background:#10b981}.answer.correct .answer-indicator .dot{display:block;background:#fff}
+.answer.incorrect .answer-indicator{border-color:#ef4444;background:#ef4444}.answer.incorrect .answer-indicator .dot{display:block;background:#fff}
+.answer.missed .answer-indicator{border-color:#f59e0b;background:#f59e0b}.answer.missed .answer-indicator .dot{display:block;background:#fff}
+
+/* Checkbox indicator (multi-answer) */
+.answer-indicator.checkbox{border-radius:4px}
+.answer-indicator.checkbox .dot{width:14px;height:14px;border-radius:2px;background:transparent;display:none;font-size:14px;font-weight:700;color:#a435f0;line-height:14px}
+.answer.selected .answer-indicator.checkbox{border-color:#a435f0;background:rgba(164,53,240,.15)}.answer.selected .answer-indicator.checkbox .dot{display:flex;align-items:center;justify-content:center}
+.answer.correct .answer-indicator.checkbox{border-color:#10b981;background:#10b981}.answer.correct .answer-indicator.checkbox .dot{display:flex;color:#fff}
+.answer.incorrect .answer-indicator.checkbox{border-color:#ef4444;background:#ef4444}.answer.incorrect .answer-indicator.checkbox .dot{display:flex;color:#fff}
+.answer.missed .answer-indicator.checkbox{border-color:#f59e0b;background:#f59e0b}.answer.missed .answer-indicator.checkbox .dot{display:flex;color:#fff}
+
+.answer-text{font-size:14px;line-height:1.5;color:#d1d5db;flex:1}
+.answer-text p{margin-bottom:4px}
+.answer-text code{background:#1a1a2e;padding:2px 6px;border-radius:3px;font-size:13px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;color:#e2b714;border:1px solid #2d2f31}
+
+/* Explanation */
+.explanation{background:#1a2332;border:1px solid #1e3a5f;border-radius:8px;padding:20px;margin:16px 0;display:none}
+.explanation.show{display:block;animation:fadeIn .3s ease}
+.explanation h3{color:#60a5fa;margin-bottom:12px;font-size:15px}.explanation-body{font-size:14px;line-height:1.7;color:#cbd5e1}
+.explanation-body p{margin-bottom:10px}.explanation-body img{max-width:100%;border-radius:8px;margin:8px 0}
+.explanation-body a{color:#60a5fa}
+
+/* Result banner */
+.result-banner{padding:12px 16px;border-radius:8px;margin-bottom:16px;font-weight:600;font-size:15px;display:none}
+.result-banner.show{display:flex;align-items:center;gap:8px;animation:fadeIn .3s ease}
+.result-banner.banner-correct{background:rgba(16,185,129,.12);border:1px solid #10b981;color:#10b981}
+.result-banner.banner-incorrect{background:rgba(239,68,68,.12);border:1px solid #ef4444;color:#ef4444}
+
+/* Nav */
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:16px;border-top:1px solid #3e4143}
+.check-row{display:flex;justify-content:center;margin-bottom:16px}
+
+/* Question grid */
+.q-grid{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0}
+.q-dot{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:2px solid #3e4143;background:#2d2f31;transition:all .2s;position:relative}
+.q-dot:hover{border-color:#a435f0;transform:scale(1.05)}
+.q-dot.current{border-color:#a435f0;background:rgba(164,53,240,.25);box-shadow:0 0 0 3px rgba(164,53,240,.3);transform:scale(1.1);font-weight:700;z-index:1}
+.q-dot.answered{background:#6d28d9;border-color:#6d28d9;color:#fff}
+.q-dot.correct-dot{background:#10b981;border-color:#10b981;color:#fff}
+.q-dot.incorrect-dot{background:#ef4444;border-color:#ef4444;color:#fff}
+.q-dot.flagged::after{content:"";width:6px;height:6px;background:#f59e0b;border-radius:50%;position:absolute;top:-2px;right:-2px}
+
+/* Score card */
+.score-card{text-align:center;padding:48px 24px}
+.score-ring-wrap{width:180px;height:180px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;position:relative;background:conic-gradient(var(--ring-color,#3e4143) 0deg,#3e4143 0deg)}
+.score-ring-wrap.animate{animation:ringFill 1.2s ease-out forwards}
+@keyframes ringFill{from{background:conic-gradient(var(--ring-color) 0deg,#2d2f31 0deg)}}
+.score-ring-inner{width:160px;height:160px;border-radius:50%;background:#1c1d1f;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1}
+.score-ring-threshold{position:absolute;width:180px;height:180px;border-radius:50%;border:2px dashed rgba(255,255,255,.15);top:0;left:0;z-index:0}
+.score-pct{font-size:48px;font-weight:700}.score-label{font-size:14px;color:#a0a0a0;margin-top:4px}
+.score-details{display:flex;justify-content:center;gap:32px;margin:24px 0}
+.score-stat{text-align:center}.score-stat .num{font-size:24px;font-weight:700}.score-stat .lbl{font-size:12px;color:#a0a0a0}
+.score-stat .num.green{color:#10b981}.score-stat .num.red{color:#ef4444}.score-stat .num.yellow{color:#f59e0b}
+.score-trend{display:flex;align-items:center;gap:8px;justify-content:center;margin:12px 0;font-size:13px;color:#a0a0a0}
+.score-trend .trend-dot{display:inline-block;padding:3px 8px;border-radius:4px;font-weight:600;font-size:12px}
+.score-trend .trend-dot.pass{background:rgba(16,185,129,.12);color:#10b981}
+.score-trend .trend-dot.fail{background:rgba(239,68,68,.12);color:#ef4444}
+.score-trend .trend-arrow{color:#6b7280}
+.section-breakdown{max-width:500px;margin:24px auto;text-align:left}
+.section-row{display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid #2d2f31;font-size:14px}
+.section-row-header{display:flex;justify-content:space-between;align-items:center}
+.section-row .sec-name{color:#d1d5db;font-size:13px}.section-row .sec-score{font-weight:600;font-size:13px}
+.section-bar{height:6px;background:#3e4143;border-radius:4px;overflow:hidden}
+.section-bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+
+/* Start screen */
+.start-screen{text-align:center;padding:60px 24px;max-width:650px;margin:0 auto}
+.start-screen h2{font-size:28px;margin-bottom:12px;color:#fff;font-weight:700}
+.start-screen .subtitle{color:#a0a0a0;font-size:15px;margin-bottom:16px}
+.quick-stats{display:flex;gap:12px;justify-content:center;margin-bottom:28px;flex-wrap:wrap}
+.quick-stat{font-size:12px;color:#a0a0a0;background:#2d2f31;border:1px solid #3e4143;border-radius:20px;padding:5px 14px;font-weight:600}
+.quick-stat .qs-val{color:#a435f0}
+.quick-stat .qs-val.pass{color:#10b981}
+.quick-stat .qs-val.fail{color:#ef4444}
+.mode-cards{display:flex;gap:16px;margin:0 auto 32px;flex-wrap:wrap;justify-content:center}
+.mode-card{background:#2d2f31;border:2px solid #3e4143;border-radius:12px;padding:32px 24px;cursor:pointer;transition:all .25s;flex:1;min-width:240px;max-width:290px;position:relative;overflow:hidden}
+.mode-card::before{content:"";position:absolute;inset:0;border-radius:12px;padding:2px;background:linear-gradient(135deg,#a435f0,#6d28d9,#a435f0);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .3s}
+.mode-card:hover::before{opacity:1}
+.mode-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(164,53,240,.15)}
+.mode-card h3{font-size:18px;margin-bottom:8px;font-weight:600}.mode-card p{font-size:13px;color:#a0a0a0;line-height:1.5}
+.mode-card .mode-icon{font-size:36px;margin-bottom:14px}
+
+/* Info panel */
+.info-panel{max-width:600px;margin:0 auto;padding:40px 24px;text-align:left;animation:fadeIn .3s ease}
+.info-panel h2{font-size:22px;margin-bottom:16px;text-align:center}
+.info-panel .info-desc{background:#2d2f31;border-radius:8px;padding:24px;margin-bottom:24px;font-size:14px;line-height:1.7;color:#d1d5db}
+.info-panel .info-desc p{margin-bottom:12px}
+.info-panel .info-desc ul{margin-left:20px;margin-bottom:12px}
+.info-panel .info-desc li{margin-bottom:6px}
+.info-panel .info-meta{display:flex;gap:16px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+.info-meta-item{background:#2d2f31;border-radius:8px;padding:12px 20px;text-align:center;flex:1;min-width:120px}
+.info-meta-item .meta-val{font-size:20px;font-weight:700;color:#a435f0}.info-meta-item .meta-lbl{font-size:12px;color:#a0a0a0;margin-top:4px}
+
+/* Past attempts */
+.attempts-section{margin-top:32px;text-align:left}
+.attempts-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.attempts-header h3{font-size:15px;color:#a0a0a0;font-weight:600}
+.attempts-table{width:100%;border-collapse:collapse;font-size:13px}
+.attempts-table th{text-align:left;padding:8px 12px;color:#6b7280;font-weight:600;border-bottom:1px solid #3e4143;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.attempts-table td{padding:8px 12px;border-bottom:1px solid #2d2f31;color:#d1d5db}
+.attempts-table tr{cursor:pointer;transition:background .15s}
+.attempts-table tr:hover{background:rgba(164,53,240,.08)}
+.attempt-mode{font-size:10px;padding:2px 6px;border-radius:3px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.attempt-mode.exam{background:rgba(164,53,240,.15);color:#a435f0}
+.attempt-mode.review{background:rgba(59,130,246,.15);color:#3b82f6}
+.attempt-score{font-weight:700}
+.attempt-score.pass{color:#10b981}.attempt-score.fail{color:#ef4444}
+.no-attempts{color:#6b7280;font-size:14px;text-align:center;padding:20px}
+
+/* Misc */
+.hidden{display:none!important}
+
+/* Custom confirm modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;animation:fadeIn .15s ease}
+.modal-card{background:#2d2f31;border:1px solid #3e4143;border-radius:16px;padding:32px;max-width:420px;width:90%;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.4);animation:slideIn .2s ease}
+.modal-icon{font-size:40px;margin-bottom:12px}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:8px;color:#fff}
+.modal-body{font-size:14px;color:#a0a0a0;line-height:1.6;margin-bottom:24px}
+.modal-stats{display:flex;gap:12px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
+.modal-stat{background:#1c1d1f;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600}
+.modal-stat.s-answered{color:#a435f0}.modal-stat.s-unanswered{color:#f59e0b}.modal-stat.s-flagged{color:#60a5fa}
+.modal-actions{display:flex;gap:10px;justify-content:center}
+
+/* Navigator summary chips */
+.nav-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.nav-chip{font-size:11px;color:#a0a0a0;background:#2d2f31;border:1px solid #3e4143;border-radius:16px;padding:4px 12px;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.nav-chip .chip-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.nav-chip .chip-dot.c-answered{background:#6d28d9}
+.nav-chip .chip-dot.c-remaining{background:#3e4143}
+.nav-chip .chip-dot.c-correct{background:#10b981}
+.nav-chip .chip-dot.c-incorrect{background:#ef4444}
+.nav-chip .chip-dot.c-flagged{background:#f59e0b}
+
+/* Bookmark button */
+.bookmark-btn{background:none;border:none;cursor:pointer;padding:6px;display:inline-flex;align-items:center;justify-content:center;transition:all .2s;border-radius:6px}
+.bookmark-btn:hover{background:rgba(255,255,255,.06)}
+.bookmark-btn svg{width:24px;height:24px;stroke:#a0a0a0;stroke-width:2;fill:none;transition:all .2s}
+.bookmark-btn:hover svg{stroke:#fff}
+.bookmark-btn.bookmarked svg{fill:#fff;stroke:#fff}
+
+/* Navigator filter dropdowns */
+.nav-filters{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.filter-dropdown{position:relative;display:inline-block}
+.filter-dropdown-btn{background:#a435f0;border:none;border-radius:4px;font-size:13px;cursor:pointer;padding:8px 14px;color:#fff;font-weight:600;font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:background .15s}
+.filter-dropdown-btn:hover{background:#8b2ccf}
+.filter-dropdown-btn .arrow{font-size:10px;opacity:.8}
+.filter-dropdown-menu{display:none;position:absolute;top:calc(100% + 4px);left:0;background:#1e1f22;border:1px solid #3e4143;border-radius:6px;min-width:200px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.4);overflow:hidden;animation:fadeIn .15s ease}
+.filter-dropdown-menu.show{display:block}
+.filter-dropdown-item{padding:10px 16px;font-size:13px;color:#d1d5db;cursor:pointer;transition:background .1s;border-left:3px solid transparent}
+.filter-dropdown-item:hover{background:rgba(255,255,255,.06)}
+.filter-dropdown-item.active{color:#fff;border-left-color:#a435f0;background:rgba(164,53,240,.12)}
+.mode-badge{font-size:11px;padding:3px 8px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-right:auto}
+.mode-badge.exam{background:rgba(164,53,240,.15);color:#a435f0}.mode-badge.review{background:rgba(59,130,246,.15);color:#3b82f6}
+.mode-badge.history{background:rgba(107,114,128,.15);color:#9ca3af}
+
+/* Question transition animation */
+.quiz-content{animation:slideIn .25s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* Subtle card */
+.quiz-content{background:rgba(45,47,49,.55);border:1px solid rgba(62,65,67,.5);border-radius:16px;padding:28px;margin:-4px}
+
+@media(max-width:640px){
+  .main{padding:12px}.header h1{font-size:14px}.score-details{gap:16px}
+  .q-dot{width:36px;height:36px;font-size:11px}
+  .mode-cards{flex-direction:column;align-items:center}
+  .header-right{gap:8px}.live-score{font-size:11px;padding:3px 8px}
+  .info-panel .info-meta{flex-direction:column}
+  .nav{flex-wrap:wrap;gap:8px;justify-content:center}
+  .nav-filters{flex-direction:column}
+  .quiz-content{padding:16px;margin:0;border-radius:12px}
+  .filter-dropdown-btn{font-size:12px;padding:6px 12px}
+  .score-ring-wrap{width:150px;height:150px}
+  .score-ring-inner{width:132px;height:132px}
+  .score-pct{font-size:36px}
+}
+
+/* 1. The Code Container */
+.question-text pre, 
+.answer-text pre {
+    /* Deep navy/black background like the screenshot */
+    background-color: #0d1117 !important; 
+    
+    /* Soft border to define the edges */
+    border: 1px solid #30363d !important;
+    
+    /* Rounded corners */
+    border-radius: 12px !important;
+    
+    /* Generous padding for breathing room */
+    padding: 24px !important;
+    
+    /* Shadow to make it "pop" off the page */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    
+    /* Modern coding font */
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace !important;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #e6edf3; /* Default text color (brackets/punctuation) */
+    overflow-x: auto;
+    margin: 16px 0;
+}
+
+/* Inline code styling (for single words and inline blocks) */
+.question-text code, 
+.answer-text code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace !important;
+    background: #0d1117 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    border: 1px solid #30363d !important;
+    color: #e6edf3 !important;
+}
+
+/* Fix for code inside pre: remove double border/background & avoid line artifacts */
+.question-text pre code,
+.answer-text pre code {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    color: inherit !important;
+}
+
+/* 2. Syntax Highlighting Colors */
+
+/* JSON Keys (e.g., "Version":) -> Cyan/Blue */
+.highlight-key {
+    color: #79c0ff !important; 
+    font-weight: 600;
+}
+
+/* Strings (e.g., "2021-10-17") -> Soft Orange */
+.highlight-string {
+    color: #ffab70 !important;
+}
+
+/* Numbers -> Mint Green */
+.highlight-number {
+    color: #7ee787 !important;
+}
+
+/* Booleans (true/false) -> Blue */
+.highlight-boolean {
+    color: #79c0ff !important;
+    font-style: italic;
+}
+
+/* Nulls -> Red/Pink */
+.highlight-null {
+    color: #ff7b72 !important;
+}
+
+/* Generic Code Highlighting */
+.highlight-keyword { color: #ff7b72 !important; font-weight: bold; } /* Red/Pink */
+.highlight-comment { color: #8b949e !important; font-style: italic; } /* Grey */
+.highlight-func { color: #d2a8ff !important; } /* Purple */
+.highlight-operator { color: #79c0ff !important; } /* Blue */
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1 id="headerTitle"></h1>
+  <div class="header-right">
+    <span class="mode-badge hidden" id="modeBadge"></span>
+    <span class="live-score hidden" id="liveScore"></span>
+    <span class="timer" id="timer">00:00:00</span>
+    <button class="btn btn-ghost hidden" id="exitBtn" onclick="exitReview()">Exit</button>
+    <button class="btn btn-danger hidden" id="endExamBtn" onclick="endExam()">End Exam</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- Start Screen -->
+  <div id="startScreen" class="start-screen">
+    <h2 id="examTitle"></h2>
+    <p class="subtitle"><strong id="examCount"></strong> &middot; Questions and answers will be randomized</p>
+    <div class="quick-stats" id="quickStats"></div>
+    <div class="mode-cards">
+      <div class="mode-card" onclick="selectMode('exam')">
+        <div class="mode-icon">📝</div>
+        <h3>Exam Mode</h3>
+        <p>Simulate the real exam. Answers and explanations are revealed only after you finish all questions.</p>
+      </div>
+      <div class="mode-card" onclick="selectMode('review')">
+        <div class="mode-icon">📖</div>
+        <h3>Review Mode</h3>
+        <p>Learn as you go. Check your answer after each question and see the explanation immediately.</p>
+      </div>
+    </div>
+    <div class="attempts-section" id="attemptsSection"></div>
+  </div>
+
+  <!-- Info Panel (shown after mode selection) -->
+  <div id="infoPanel" class="hidden">
+    <div class="info-panel">
+      <h2 id="infoTitle"></h2>
+      <div class="info-meta" id="infoMeta">
+        <div class="info-meta-item"><div class="meta-val" id="infoQuestions">0</div><div class="meta-lbl">Questions</div></div>
+        <div class="info-meta-item"><div class="meta-val" id="infoTime">--</div><div class="meta-lbl">Duration</div></div>
+        <div class="info-meta-item"><div class="meta-val" id="infoPass">72%</div><div class="meta-lbl">To Pass</div></div>
+      </div>
+      <div class="info-desc" id="infoDesc"></div>
+      <div style="text-align:center">
+        <button class="btn btn-primary" style="padding:14px 40px;font-size:16px" onclick="startExam()">Start Practice Test</button>
+        <div style="margin-top:12px"><button class="btn btn-ghost" onclick="goBackToStart()">← Back</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz Screen -->
+  <div id="quizScreen" class="hidden">
+    <div class="quiz-content" id="quizContent">
+      <div class="progress-row">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <span class="progress-counter" id="progressCounter"></span>
+      </div>
+      <div class="question-header">
+        <span class="q-number" id="qNumber"></span>
+        <span class="q-section" id="qSection"></span>
+      </div>
+      <div class="q-type" id="qType"></div>
+      <div class="question-text" id="qText"></div>
+      <div class="answers" id="answers"></div>
+      <div class="result-banner" id="resultBanner"></div>
+      <div class="check-row hidden" id="checkRow"><button class="btn btn-check" id="checkBtn" onclick="checkAnswer()" disabled>Check Answer</button></div>
+      <div class="explanation" id="explanation"><h3>💡 Explanation</h3><div class="explanation-body" id="explanationBody"></div></div>
+      <div class="nav">
+        <button class="btn btn-outline" id="prevBtn" onclick="navigate(-1)">← Previous</button>
+        <button class="bookmark-btn" id="flagBtn" onclick="toggleFlag()" title="Save for review"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M5 5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16l-7-3.5L5 21V5z" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="btn btn-primary" id="nextBtn" onclick="navigate(1)">Next →</button>
+      </div>
+      <div style="margin-top:24px">
+      <div class="nav-summary" id="navSummary"></div>
+        <div class="nav-filters" id="navFilters"></div>
+        <div class="q-grid" id="qGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Score Screen -->
+  <div id="scoreScreen" class="hidden">
+    <div class="score-card">
+      <h2 style="margin-bottom:24px;font-size:24px">Exam Results</h2>
+      <div class="score-ring-wrap" id="scoreCircle">
+        <div class="score-ring-threshold"></div>
+        <div class="score-ring-inner">
+          <div class="score-pct" id="scorePct"></div>
+          <div class="score-label" id="scoreStatus"></div>
+        </div>
+      </div>
+      <div class="score-trend" id="scoreTrend"></div>
+      <div class="score-details">
+        <div class="score-stat"><div class="num green" id="scoreCorrect">0</div><div class="lbl">Correct</div></div>
+        <div class="score-stat"><div class="num red" id="scoreIncorrect">0</div><div class="lbl">Incorrect</div></div>
+        <div class="score-stat"><div class="num yellow" id="scoreSkipped">0</div><div class="lbl">Skipped</div></div>
+      </div>
+      <div id="scoreTime" style="color:#a0a0a0;font-size:14px;margin-bottom:16px"></div>
+      <div class="section-breakdown" id="sectionBreakdown"></div>
+      <div style="margin-top:32px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="reviewFromScore()">Review All Answers</button>
+        <button class="btn btn-outline" onclick="retakeExam()">Retake Exam</button>
+        <button class="btn btn-ghost" onclick="goBackToStart()">Back to Start</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="quiz-data-script" type="application/json">{"id": 5915038, "title": "Practice Test #6", "description": null, "pass_score": null, "assessments": [{"_class": "assessment", "id": 120149255, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: An Increment must be released every 3 Sprints.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, an Increment is a concrete stepping stone toward the Product Goal. Each Increment is additive to all prior Increments and thoroughly verified, ensuring that all Increments work together. In order to provide transparency, an Increment must be available at the end of every Sprint. The Increment must be usable and meet the Definition of Done. The availability of the Increment at least at the end of every Sprint enables inspection and adaptation by the Scrum Team and the stakeholders. The availability of the Increment does not depend on any other phases, requests, or timeframes.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: An Increment must be released every 3 Sprints.", "related_lectures": []}, {"_class": "assessment", "id": 120149235, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Who should track the progress toward the Sprint Goal?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the Developers are the people in the Scrum Team who are responsible for creating a &quot;Done&quot; Increment that meets the Sprint Goal. The Developers are also accountable for managing their own work and tracking the progress toward the Sprint Goal. The Developers can use various tools and techniques to monitor the remaining work, such as Sprint Backlog, Sprint Burndown Chart, or Task Board. ", "answers": ["The Project Manager.", "The Scrum Master.", "The Product Owner.", "The Developers."]}, "correct_response": ["d"], "section": "Udemy", "question_plain": "Who should track the progress toward the Sprint Goal?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149237, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Who is accountable for ordering and clearly expressing the Product Backlog items?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the Product Owner is accountable for maximizing the value of the product resulting from the work of the Scrum Team. The Product Owner is also responsible for managing and expressing the Product Backlog, which is an ordered list of the work to be done by the Scrum Team. The Product Owner should ensure that the Product Backlog items are transparent, clear, and understood by everyone involved. ", "answers": ["The business analyst who works with the Product Owner.", "The Scrum Master, or the Scrum Master may delegate it to the Developers.", "The Scrum Master.", "The Product Owner."]}, "correct_response": ["d"], "section": "Udemy", "question_plain": "Who is accountable for ordering and clearly expressing the Product Backlog items?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149239, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Scrum Master can determine how work is performed during the Sprint if they have more experience and knowledge than the Developers.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, the Developers are the people in the Scrum Team who are accountable for creating a usable Increment each Sprint. The Developers are self-managing, which means they decide how to organize and perform their work during the Sprint. The Developers are not directed by anyone else, such as subject matter experts, the Scrum Master, the rest of the Scrum Team, or a team manager. The Developers have the skills and autonomy to deliver value to the product.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Scrum Master can determine how work is performed during the Sprint if they have more experience and knowledge than the Developers.", "related_lectures": []}, {"_class": "assessment", "id": 120149241, "assessment_type": "multiple-choice", "prompt": {"question": "<p>The Scrum Master notices that the Product Owner has difficulty ordering the Product Backlog items. What is a suitable action for the Scrum Master to take?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", ""], "explanation": "As a leader who serves and facilitator, the Scrum Master&#x27;s role is to help the team understand and implement Scrum, including helping the Product Owner understand the purpose of ordering the Product Backlog to optimize value. The Scrum Master can provide guidance, support, and coaching to the Product Owner to enhance their understanding and ability to effectively prioritize and order the Product Backlog.", "answers": ["Tell the Developers to use their technical expertise to order the Product Backlog.", "Suggest the Product Owner shorten the Sprint, so he can have more frequent feedback on the Product Backlog.", "Serve the Product Owner by ordering the Product Backlog.", "Ask the Product Owner to size the Product Backlog items and calculate the ROI.", "Offer the Product Owner help in understanding that the purpose of ordering the Product Backlog is to optimize value."]}, "correct_response": ["e"], "section": "Udemy", "question_plain": "The Scrum Master notices that the Product Owner has difficulty ordering the Product Backlog items. What is a suitable action for the Scrum Master to take?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149243, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A manager should participate in Daily Scrums if they have some feedback or suggestions for the Developers.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, the Daily Scrum is an event for the Developers to inspect their progress toward the Sprint Goal and to adapt their Sprint Backlog accordingly. The Daily Scrum is a 15-minute time-boxed event that is held at the same time and place each day. The Daily Scrum is for the Developers, and no one else is required to be there. Management that is external to the Scrum Team is not involved in the Daily Scrum, as this would interfere with the Developers&#x27; self-management and ownership of their work. ", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A manager should participate in Daily Scrums if they have some feedback or suggestions for the Developers.", "related_lectures": []}, {"_class": "assessment", "id": 120149245, "assessment_type": "multi-select", "prompt": {"question": "<p>You have just joined a company that is new to Scrum. Your manager has asked you to be the Scrum Master of six new Scrum Teams. These teams will work on one product. Select two conditions you should aim for in this situation. </p><p>(choose the best two answers) </p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", ""], "explanation": "The Scrum Guide states that the Product Owner&#x27;s primary responsibility is to maximize the product&#x27;s value created by the Scrum Team. They manage and express the ordered Product Backlog, representing the work to be done. While they may consider a committee&#x27;s desires, the Product Owner is a single individual, and any changes to priorities must be addressed with them. Regardless of the number of Scrum Teams involved, there is only one Product Backlog. Unnecessary complexity, confusion, or conflict should be avoided in this context.", "answers": ["There should be six Product Owners, each with their own vision and goals. ", "There should be only one Product Owner. ", "Each Scrum Team should have a different Product Backlog. ", "The product has one Product Backlog.", "There should be six Product Owners, coordinated by a Senior Product Owner."]}, "correct_response": ["b", "d"], "section": "Udemy", "question_plain": "You have just joined a company that is new to Scrum. Your manager has asked you to be the Scrum Master of six new Scrum Teams. These teams will work on one product. Select two conditions you should aim for in this situation. (choose the best two answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149247, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Product Backlog item can be considered complete before the end of the Sprint if it meets the Definition of Done.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, a Product Backlog item is considered complete when it meets the Definition of Done. The Definition of Done is a formal description of the state of the Increment when it meets the quality measures required for the product. The Definition of Done may include acceptance criteria, but it is not limited to them. The Definition of Done applies to all Product Backlog items, regardless of when they are completed within the Sprint. The Definition of Done does not depend on the approval of anyone outside the Scrum Team, such as a product sponsor.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "True or False: A Product Backlog item can be considered complete before the end of the Sprint if it meets the Definition of Done.", "related_lectures": []}, {"_class": "assessment", "id": 120149249, "assessment_type": "multi-select", "prompt": {"question": "<p>What are two ways that legal compliance requirements are handled in Scrum? </p><p>(choose the best two answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the Scrum Team is responsible for delivering a \u201cDone\u201d product Increment that meets the Definition of Done, which may include regulatory compliance requirements. The Scrum Team should address the compliance issues along with the functional development of the product, as part of the Sprint Goal and the Sprint Backlog. The compliance issues should also be added to the Product Backlog and addressed in early Sprints, while always delivering some business value, no matter how small. The other options are incorrect, as they introduce unnecessary delays, dependencies, or handovers.", "answers": ["They are planned, agreed, and documented before the actual product development Sprints. ", "They are integrated with the product development of the product. ", "They are added to the Product Backlog and addressed in early Sprints, while always providing some business functionality.", "They are addressed by a separate team who is in charge of compliance requirements."]}, "correct_response": ["b", "c"], "section": "Udemy", "question_plain": "What are two ways that legal compliance requirements are handled in Scrum? (choose the best two answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149251, "assessment_type": "multiple-choice", "prompt": {"question": "<p>The duration of a Sprint should be: </p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "A Sprint in Scrum is timeboxed to one month or less. This duration is purposefully short to minimize risk, enable frequent delivery of value to customers, and uphold the Scrum framework&#x27;s principle of frequent inspection and adaptation.", "answers": ["Short enough to keep the risks manageable.", "Short enough to be able to deliver value to the customers frequently. ", "No longer than one calendar month. ", "All of the above."]}, "correct_response": ["d"], "section": "Udemy", "question_plain": "The duration of a Sprint should be: (choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149253, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Which of the following is mandated by Scrum? </p><p>(choose the best answer)</p>", "relatedLectureIds": [], "links": [], "feedbacks": ["", "", "", "", ""], "explanation": "<p>The Sprint Goal is the single objective for the Sprint. Although the Sprint Goal is a commitment by the Developers, it provides flexibility in terms of the exact work needed to achieve it. The Sprint Goal also creates coherence and focus, encouraging the Scrum Team to work together rather than on separate initiatives. The other options are not mandatory in Scrum. </p>", "answers": ["Sprint Goal. ", "Developers must estimate the Product Backlog items using Story Points.", "Sprint Burnup Chart. ", "Product Roadmap. ", "All of the above."]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "Which of the following is mandated by Scrum? (choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149191, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Scrum Master should set up the meeting for a Scrum Team that has Developers in different physical locations and tell them how to conduct the Daily Scrum.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, the Developers are self-managing, which means they decide how to organize and do their work. The Scrum Master should not interfere with their decisions or tell them what to do. The Scrum Master should also not delegate the problem to management or ask the Developers to take turns in setting up the meeting, as these actions would undermine the Developers&#x27; autonomy and self-organization.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Scrum Master should set up the meeting for a Scrum Team that has Developers in different physical locations and tell them how to conduct the Daily Scrum.", "related_lectures": []}, {"_class": "assessment", "id": 120149257, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Scrum Master can prioritize the resulting action items from the Sprint Retrospective if they have more experience and knowledge than the rest of the Scrum Team.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Sprint Retrospective, as per the Scrum Guide, allows the Scrum Team to review the last Sprint in terms of individuals, interactions, processes, tools, and their Definition of Done. It serves as an opportunity for the team to enhance their quality and effectiveness. The Scrum Master participates as a team member and facilitates the process, aiding in identifying improvements and creating an implementation plan. However, the Scrum Master refrains from prioritizing, capturing, summarizing, or reporting the outcomes, as this preserves the Scrum Team&#x27;s self-management and ownership of the improvement process.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Scrum Master can prioritize the resulting action items from the Sprint Retrospective if they have more experience and knowledge than the rest of the Scrum Team.", "related_lectures": []}, {"_class": "assessment", "id": 120149259, "assessment_type": "multiple-choice", "prompt": {"question": "<p>A new Developer is not following the Definition of Done agreed by the Scrum Team and causing conflicts with the other Scrum teams. If necessary, who should remove the Developer from the Scrum Team? </p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "The Scrum Team, as stated in the Scrum Guide, holds accountability for all product-related activities, including stakeholder collaboration, verification, maintenance, operation, experimentation, research, and development, as well as any other required tasks. They are self-managing, making internal decisions on roles, responsibilities, and conflict resolution. The Scrum Team has the authority to remove a Developer if necessary. ", "answers": ["The project manager.", "The Scrum Team. ", "The Product Owner.", "The Scrum Master."]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "A new Developer is not following the Definition of Done agreed by the Scrum Team and causing conflicts with the other Scrum teams. If necessary, who should remove the Developer from the Scrum Team? (choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149261, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Scrum Team is self-managing if they have a team leader who assigns tasks and monitors their progress.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "A team with a leader who assigns tasks and monitors progress contradicts the principle of self-management in Scrum. This principle empowers the team to take ownership of the work, promoting a high degree of collaboration, innovation, and efficiency.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Scrum Team is self-managing if they have a team leader who assigns tasks and monitors their progress.", "related_lectures": []}, {"_class": "assessment", "id": 120149263, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Daily Scrum should be held at different times and places to reduce complexity.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Daily Scrum, as outlined in the Scrum Guide, is a 15-minute daily event held at the same time and place. Exclusively for Developers, it aims to inspect progress toward the Sprint Goal and adapt the Sprint Backlog as necessary. Consistency in timing and location reduces complexity and improves focus, fostering a daily rhythm of inspection and adaptation. This approach also minimizes scheduling overhead and preparation. External factors like room availability or Product Owner&#x27;s demands should not influence the timing and place of the Daily Scrum.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Daily Scrum should be held at different times and places to reduce complexity.", "related_lectures": []}, {"_class": "assessment", "id": 120149265, "assessment_type": "multiple-choice", "prompt": {"question": "<p>What are the two mandatory accountabilities in every Scrum Team?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "Two mandatory accountabilities in every Scrum Team are Product Owner and Scrum Master, as stated in the Scrum Guide. ", "answers": ["Product Owner and Lead Developer", "Product Owner and Scrum Master", "Scrum Master and Lead Developer", "Product Owner and Project Manager"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "What are the two mandatory accountabilities in every Scrum Team?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149267, "assessment_type": "multi-select", "prompt": {"question": "<p>What are the two main ways a Scrum Master helps a Scrum Team deliver value to the customers? </p><p>(choose the best two answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "A Scrum Master primarily aids a Scrum Team in delivering value by supporting the Product Owner in effective Product Backlog management, ensuring that the team focuses on the highest value items. Furthermore, as a leader who serves, they facilitate the decision-making processes, creating an environment where the team has the necessary information and conditions to make the best decisions, thus enhancing the team&#x27;s effectiveness and the value delivered.", "answers": ["By ensuring that the Product Backlog items are clear and testable. ", "By supporting the Product Owner in Product Backlog management. ", "By making sure that the Sprint Review is attended by the stakeholders. ", "By facilitating decision-making."]}, "correct_response": ["b", "d"], "section": "Udemy", "question_plain": "What are the two main ways a Scrum Master helps a Scrum Team deliver value to the customers? (choose the best two answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149269, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Which of the following is mandated by Scrum? </p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", ""], "explanation": "The Sprint Retrospective, one of Scrum&#x27;s five events, aims to enhance quality and effectiveness. The Scrum Team inspects the last Sprint, focusing on individuals, interactions, processes, tools, and their Definition of Done. The other options are not mandatory in Scrum. ", "answers": ["Sprint Goal. ", "Developers must estimate the Product Backlog items using Story Points.", "Sprint Burnup Chart. ", "Product Roadmap. ", "All of the above."]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "Which of the following is mandated by Scrum? (choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149271, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Scrum Master can assign tasks to the Developers based on their skills and availability.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Scrum Team is accountable for all product-related activities, including stakeholder collaboration, verification, maintenance, operation, experimentation, research, and development. They are self-managing, deciding who does what, when, and how, without external direction. Scrum doesn&#x27;t have a Project Manager role, as it deviates from traditional project management. The Product Owner is responsible for the product vision and value, not the work&#x27;s execution. The Scrum Master helps the team apply Scrum but doesn&#x27;t direct their tasks.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Scrum Master can assign tasks to the Developers based on their skills and availability.", "related_lectures": []}, {"_class": "assessment", "id": 120149273, "assessment_type": "multiple-choice", "prompt": {"question": "<p>You are the Scrum Master of Scrum Team that is suffering from a delay caused by an external supplier. The delay is blocking the development of a few of the the top Product Backlog items. As the Scrum Master, what advice would you give the Product Owner?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "As per the Scrum Guide, the Product Owner is responsible for maximizing product value resulting from the Scrum Team&#x27;s work. Effective Product Backlog management involves ordering items to achieve goals. The Scrum Master should remind the Product Owner to prioritize value flow in the Product Backlog, not Developer utilization or external dependencies. The Scrum Master does not dictate actions to the Product Owner, and the backlog should not be ordered based on criteria other than value.", "answers": ["Teach that the Product Backlog ordering should mainly focus on reflecting the flow of value.", "Suggest having a specific Sprint for handling the work related to the external supplier.", "Tell him to focus on making sure the Developers are busy.", "Tell him to leave the Product Backlog as it is."]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "You are the Scrum Master of Scrum Team that is suffering from a delay caused by an external supplier. The delay is blocking the development of a few of the the top Product Backlog items. As the Scrum Master, what advice would you give the Product Owner?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149189, "assessment_type": "multiple-choice", "prompt": {"question": "<p>What is the purpose of a Sprint in Scrum?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "The purpose of a Sprint is to produce a valuable, useful Increment, as stated in the Scrum Guide. The other options are not correct because they are not the primary purpose of a Sprint, but rather activities that may happen during or after a Sprint.", "answers": ["To produce a valuable, useful Increment", "To complete all the tasks in the Sprint Backlog", "To inspect and adapt the Product Backlog", "To review and improve the Scrum process"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "What is the purpose of a Sprint in Scrum?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149231, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Who has the final say on whether a Sprint should be canceled?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the Product Owner is the sole person responsible for managing the Product Backlog and ensuring that the value of the work the Scrum Team performs is understood. The Product Owner can cancel a Sprint if they determine that the Sprint Goal is obsolete or that the value of the work done is lower than the cost of completing the Sprint. The other options are incorrect, as they do not have the authority or the accountability to cancel a Sprint.", "answers": ["The Stakeholders.", "The Scrum Master.", "The Scrum Team.", "The Product Owner."]}, "correct_response": ["d"], "section": "Udemy", "question_plain": "Who has the final say on whether a Sprint should be canceled?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149233, "assessment_type": "multiple-choice", "prompt": {"question": "<p>You are the Scrum Master of a new product that requires 55 people to develop. How would you advise the group to organize themselves into teams?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the Developers are the people in the Scrum Team who are committed to creating any aspect of a usable Increment each Sprint. The Developers should have all the skills and competencies needed to accomplish the work of the Sprint. Therefore, a good first question for the Scrum Master to suggest is how to ensure that all teams have the right amount of expertise. The other options are incorrect, as they are not aligned with the Scrum values or principles.", "answers": ["Who are the best candidates for each team role?", "What is the optimal balance of skills and experience on each team?", "Who is going to be the team leader?", "How will we ensure that all teams have the necessary capabilities?"]}, "correct_response": ["d"], "section": "Udemy", "question_plain": "You are the Scrum Master of a new product that requires 55 people to develop. How would you advise the group to organize themselves into teams?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149193, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Scrum Team should never change its membership, even if it means sacrificing the quality of the product or the happiness of the team members.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, Scrum Teams should have consistency in their membership to promote trust, collaboration and accountability. However, sometimes changes are unavoidable or beneficial for the team or the product. In such cases, the Scrum Team should be open to change, while acknowledging that it may cause some temporary disruption or loss of productivity.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Scrum Team should never change its membership, even if it means sacrificing the quality of the product or the happiness of the team members.", "related_lectures": []}, {"_class": "assessment", "id": 120149195, "assessment_type": "multiple-choice", "prompt": {"question": "Who is accountable for maximizing the value of the product resulting from the work of the Scrum Team?", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "The Product Owner is accountable for maximizing the value of the product resulting from the work of the Scrum Team, as stated in the Scrum Guide. The other options are not correct because they are not accountable for this aspect of Scrum, but rather have different roles and responsibilities.", "answers": ["The Product Owner", "The Developers ", "The Stakeholders ", "The Scrum Master"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "Who is accountable for maximizing the value of the product resulting from the work of the Scrum Team?", "related_lectures": []}, {"_class": "assessment", "id": 120149197, "assessment_type": "multi-select", "prompt": {"question": "<p>What are the responsibilities and characteristics of the Product Owner?</p><p>(choose the best two answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the Product Owner is accountable for maximizing the value of the product resulting from the work of the Scrum Team. The Product Owner is also accountable for managing and ordering the Product Backlog. The Product Owner is one person, not a committee, and represents the needs and interests of all stakeholders. Having multiple Product Owners would cause confusion, conflicts and waste.", "answers": ["The Product Owner is responsible for delivering the product increments.", "The Product Owner is one individual who represents all stakeholders.", "The Product Owner is a group of people who share the accountability for the product value.", "The Product Owner is responsible for managing and ordering the Product Backlog."]}, "correct_response": ["b", "d"], "section": "Udemy", "question_plain": "What are the responsibilities and characteristics of the Product Owner?(choose the best two answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149199, "assessment_type": "multi-select", "prompt": {"question": "<p>What are two aspects of self-managing Developers? </p><p>(choose the best two answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", ""], "explanation": "In Scrum, self-managing Developers have the autonomy to decide how to divide the work amongst themselves during a Sprint. This allows the team to best utilize their skills and expertise to deliver the planned work in the most efficient manner. Additionally, in collaboration with the Product Owner, Developers actively participate in selecting the items from the Product Backlog that they will work on during the upcoming Sprint. This self-selection process reinforces their autonomy and allows them to commit to a realistic and achievable scope of work for each Sprint, based on their understanding of their capacity and the Product Owner&#x27;s input on value and priorities.", "answers": ["Decide how to split the work among themselves", "Consistently increase their productivity", "Select the Product Backlog items for the Sprint", "Create a detailed report for management every Sprint ", "Order the Product Backlog"]}, "correct_response": ["a", "c"], "section": "Udemy", "question_plain": "What are two aspects of self-managing Developers? (choose the best two answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149201, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: An organization that adopts Scrum should use the same terminology as defined in the Scrum Guide to avoid ambiguity and promote transparency.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, Scrum is a framework with specific roles, events, artifacts and rules. Changing the terminology of Scrum may cause confusion, misunderstanding and resistance to change. The new vocabulary of Scrum is a reminder that Scrum is different from the previous way of working and requires a shift in mindset and behavior. Management may feel less anxious by using familiar terms, but this may also prevent them from fully embracing Scrum and its benefits.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "True or False: An organization that adopts Scrum should use the same terminology as defined in the Scrum Guide to avoid ambiguity and promote transparency.", "related_lectures": []}, {"_class": "assessment", "id": 120149203, "assessment_type": "multi-select", "prompt": {"question": "<p>As a Scrum Master, how would you help a new Scrum Team get started? </p><p>(choose the best two answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", ""], "explanation": "According to the Scrum Guide, the Scrum Master is accountable for establishing Scrum as defined in the Scrum Guide. The Scrum Master helps the Scrum Team and the organization adhere to Scrum theory, practices, and rules. One of the activities that would help a newly formed Scrum Team is to ensure they have a clear and shared understanding of what \u201cDone\u201d means for their product. Another activity is to ask the Product Owner to share the product vision, goals, and context with the team, and answer any questions they might have. This would help the team align with the Product Owner and understand the value of their work. The other options are not helpful, as they would undermine the self-management, accountability, and collaboration of the Scrum Team.", "answers": ["Ensure the Product Owner brings alignment by providing context such as the product vision and answer questions.", "Have the Developers take a personality test and assign roles based on their results. ", "Ask the Product Owner to create a Product Backlog with enough items for several Sprints. ", "Make sure the Scrum Team invests enough time creating the Definition of Done. ", "Introduce a ranking system for the Developers based on their velocity."]}, "correct_response": ["a", "d"], "section": "Udemy", "question_plain": "As a Scrum Master, how would you help a new Scrum Team get started? (choose the best two answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149205, "assessment_type": "multiple-choice", "prompt": {"question": "<p>True or False: A Scrum Master should ask each Developer to answer three questions during the Daily Scrum:&nbsp; </p><p><br></p><p>What did you do yesterday?&nbsp; </p><p>What will you do today?&nbsp; </p><p>What are the impediments?</p>", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, the Daily Scrum is an event for the Developers to inspect their progress and plan their work for the next 24 hours. The Scrum Master should not lead the discussions, as this would undermine the self-management of the Developers. The Scrum Master should also not enforce a specific format or questions for the Daily Scrum, as this would limit the creativity and adaptability of the Developers. The Scrum Master should only ensure that the Daily Scrum happens and that it is kept within 15 minutes.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Scrum Master should ask each Developer to answer three questions during the Daily Scrum:&nbsp; What did you do yesterday?&nbsp; What will you do today?&nbsp; What are the impediments?", "related_lectures": []}, {"_class": "assessment", "id": 120149207, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Who is accountable for creating the Definition of Done?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", ""], "explanation": "According to the Scrum Guide, the Definition of Done is a formal description of the state of the Increment when it meets the quality measures required for the product. The Definition of Done is created by the Scrum Team, which consists of the Product Owner, the Developers, and the Scrum Master. The Definition of Done is used to assess when work is complete on the product Increment. The other options are incorrect, as they imply that only one role is responsible for creating the Definition of Done.", "answers": ["The Developers", "The Product Owner", "The Scrum Master", "The Scrum Team", "The Project Manager"]}, "correct_response": ["d"], "section": "Udemy", "question_plain": "Who is accountable for creating the Definition of Done?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149209, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Which of the following are valid work items to be included in the Sprint Backlog?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", ""], "explanation": "The Sprint Backlog in Scrum includes all necessary work identified by the Developers to achieve the Sprint Goal. This encompasses a variety of tasks, such as technical tasks, tests, documentation, and use cases. The Developers have the autonomy to decide what work is necessary and can update the Sprint Backlog throughout the Sprint as they learn more.", "answers": ["Technical tasks.", "Tests.", "Documentation.", "Use cases.", "All the above."]}, "correct_response": ["e"], "section": "Udemy", "question_plain": "Which of the following are valid work items to be included in the Sprint Backlog?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149213, "assessment_type": "multi-select", "prompt": {"question": "<p>What are some of the questions that the Developers should ask themselves at the Daily Scrum to inspect their progress toward the Sprint Goal?</p><p>(choose the best three answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", "", "", ""], "explanation": "According to the Scrum Guide, the Daily Scrum is an event for the Developers to inspect their progress and plan their work for the next 24 hours. The topics for the Developers to discuss should be related to the Sprint Goal and how to achieve it. The answers E, F and G are relevant topics, as they help the Developers identify any issues, risks or opportunities that affect their progress toward the Sprint Goal. The answers A, B and C are not relevant topics, as they focus on individual activities, attendance or future work that are not directly related to the Sprint Goal. The answer D is also not relevant, as it concerns a future Sprint that is not in scope of the current Daily Scrum.", "answers": ["<p>How will our progress affect the next Sprint?</p>", "How much time did I spend on each task yesterday?", "<p>Why are you late?</p>", "What will I do tomorrow?", "What are the most valuable things that we can work on today to move closer to the Sprint Goal?", "How can we help each other overcome any obstacles or challenges that are hindering our progress toward the Sprint Goal?", "What did we learn from yesterday&#x27;s work, and how can we adjust our plan accordingly to optimize our chances of meeting the Sprint Goal?"]}, "correct_response": ["e", "f", "g"], "section": "Udemy", "question_plain": "What are some of the questions that the Developers should ask themselves at the Daily Scrum to inspect their progress toward the Sprint Goal?(choose the best three answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149211, "assessment_type": "multiple-choice", "prompt": {"question": "<p>How should the Definition of Done be established when multiple Scrum Teams are collaborating on a product?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, when multiple Scrum Teams are working together on a product, they must mutually define and comply with the same Definition of Done. This ensures that the product Increment is integrated, consistent, and potentially releasable. The other options are incorrect, as they would create confusion, conflicts, and waste among the Scrum Teams. The Scrum Masters are not responsible for defining the Definition of Done, and there is no such thing as a hardening Sprint in Scrum.", "answers": ["The Product Owner from each Scrum Team agrees on a common Definition of Done.", "The Scrum Teams create and follow the same Definition of Done.", "Each Scrum Team adopts its own, but must communicate their definition to the Product Owner so the expectations are clear.", "Each Scrum Team applies its own. The differences are resolved and aligned during a Sprint Review."]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "How should the Definition of Done be established when multiple Scrum Teams are collaborating on a product?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149229, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Who should be the most informed about how the Scrum Team is progressing toward the Product Goal?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the Product Owner is accountable for maximizing the value of the product resulting from the work of the Scrum Team. The Product Owner is also responsible for managing and expressing the Product Backlog, which is aligned with the Product Goal. Therefore, the Product Owner should know the most about the progress toward the Product Goal, and communicate it to stakeholders and the Scrum Team. The other options are incorrect, as they are not accountable for the product value or the Product Goal.", "answers": ["The Scrum Master.", "The Business Analyst.", "The Product Owner.", "The Developers."]}, "correct_response": ["c"], "section": "Udemy", "question_plain": "Who should be the most informed about how the Scrum Team is progressing toward the Product Goal?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149227, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Definition of Done is a list of tasks that the Developers must complete for each Product Backlog item before they can mark it as done.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Definition of Done (DoD) in Scrum is not simply a list of tasks that Developers must complete for each Product Backlog item. Rather, it&#x27;s a shared understanding within the Scrum Team about what it means for work to be complete, and it applies to the Increment as a whole, not individual items. The DoD increases transparency and is used to assess when work is complete on the product Increment. It guides the Developers in knowing how many Product Backlog items they can select during a Sprint Planning. Importantly, it must be a clear and concise list of requirements that a software Increment must meet to be considered complete.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Definition of Done is a list of tasks that the Developers must complete for each Product Backlog item before they can mark it as done.", "related_lectures": []}, {"_class": "assessment", "id": 120149225, "assessment_type": "multiple-choice", "prompt": {"question": "<p>What is the Product Owner's accountability in the Sprint Retrospective?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the Sprint Retrospective is an event for the Scrum Team to inspect itself and create a plan for improvements to be enacted during the next Sprint. The Product Owner is a member of the Scrum Team, and therefore should participate in the Sprint Retrospective. The Product Owner can share their perspective, insights, and suggestions for improvement with the rest of the Scrum Team. The other options are incorrect, as they are not part of the Product Owner&#x27;s role or responsibility during the Sprint Retrospective.", "answers": ["Setting the agenda and facilitating the discussions.", "Collecting feedback and updating the Product Backlog.", "Joining as a Scrum Team member.", "The Product Owner does not attend the Sprint Retrospective."]}, "correct_response": ["c"], "section": "Udemy", "question_plain": "What is the Product Owner's accountability in the Sprint Retrospective?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149223, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Who is accountable for delivering value to stakeholders?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", ""], "explanation": "According to the Scrum Guide, delivering value to stakeholders is a collective accountability of the entire Scrum Team, which includes the Product Owner, the Developers, and the Scrum Master. While the Product Owner focuses on maximizing value by managing the Product Backlog and working with stakeholders, the Developers are committed to creating any aspect of a usable Increment each Sprint, and the Scrum Master facilitates and promotes Scrum within the team and the organization. Together, they collaborate to deliver value.", "answers": ["The Product Manager.", "The Developers.", "The Scrum Master.", "The Team Lead.", "The Scrum Team."]}, "correct_response": ["e"], "section": "Udemy", "question_plain": "Who is accountable for delivering value to stakeholders?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149221, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Sprint Review is a presentation of the work done by the Developers to the entire organization to check if the work has been done as planned.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, the Sprint Review is an event that occurs at the end of a Sprint, where the Scrum Team and stakeholders collaborate to inspect the Increment and the Product Backlog, and to adapt the Product Backlog if needed. The Sprint Review is not a demo, a control mechanism, or a reward/punishment system. The Sprint Review is an opportunity to inspect and adapt the product and to align on the next steps.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Sprint Review is a presentation of the work done by the Developers to the entire organization to check if the work has been done as planned.", "related_lectures": []}, {"_class": "assessment", "id": 120149219, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Product Owner can update the Sprint Backlog during a Sprint if needed.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, the Sprint Backlog is composed of the Sprint Goal, the Product Backlog items selected for the Sprint, and the plan for delivering them. The Sprint Backlog is a plan created by the Developers, and they are accountable for updating it throughout the Sprint as more is learned. The Product Owner does not have the authority to update the Sprint Backlog, as this would interfere with the Developers&#x27; self-management and ownership of their work.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Product Owner can update the Sprint Backlog during a Sprint if needed.", "related_lectures": []}, {"_class": "assessment", "id": 120149217, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Product Owner should order the Product Backlog items by value, so that the largest items are at the top and the smallest items are at the bottom.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "While it&#x27;s true that the Product Owner should order the Product Backlog, it is not solely based on the size of the items. The ordering should be done based on considerations of value, risk, priority, and dependencies, among others. It&#x27;s important to remember that larger items aren&#x27;t necessarily more valuable. A smaller item could provide more value, depending on various factors like business needs, user impact, or strategic objectives.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Product Owner should order the Product Backlog items by value, so that the largest items are at the top and the smallest items are at the bottom.", "related_lectures": []}, {"_class": "assessment", "id": 120149215, "assessment_type": "multiple-choice", "prompt": {"question": "<p>How long is the timebox for the Daily Scrum event?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the Daily Scrum is a 15-minute event for the Developers of the Scrum Team. The purpose of the Daily Scrum is to inspect progress toward the Sprint Goal and adapt the Sprint Backlog as necessary. The other options are incorrect, as they do not reflect the timebox or the frequency of the Daily Scrum. The Daily Scrum should be held at the same time and place each day, but this is not related to the timebox.", "answers": ["15 minutes.", "30 minutes.", "3 hours.", "As long as needed."]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "How long is the timebox for the Daily Scrum event?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149359, "assessment_type": "multiple-choice", "prompt": {"question": "Is it true or false that the Sprint Goal and the Sprint Backlog are outputs from the Sprint Planning?", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Sprint Backlog is initially created during Sprint Planning. Further, the Sprint Goal, the Product Backlog items selected for the Sprint, plus the plan for delivering them are together referred to as the Sprint Backlog. Thus, the statement is true.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "Is it true or false that the Sprint Goal and the Sprint Backlog are outputs from the Sprint Planning?", "related_lectures": []}, {"_class": "assessment", "id": 120149357, "assessment_type": "multi-select", "prompt": {"question": "<p>What are two valid services that the Scrum Master provides to the Product Owner?</p><p>(choose the best two answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "The Scrum Master serves the Product Owner in several ways, including: Helping find techniques for effective Product Goal definition and Product Backlog management; Helping the Scrum Team understand the need for clear and concise Product Backlog items; Helping establish empirical product planning for a complex environment; and, Facilitating stakeholder collaboration as requested or needed.", "answers": ["Helping find techniques for effective Product Goal definition and Product Backlog management", "Facilitating stakeholder collaboration as requested or needed", "Acting as the middlemen between the Product Owner and stakeholders", "Ensuring the Developers follow the plan"]}, "correct_response": ["a", "b"], "section": "Udemy", "question_plain": "What are two valid services that the Scrum Master provides to the Product Owner?(choose the best two answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149355, "assessment_type": "multiple-choice", "prompt": {"question": "<p>According to the Scrum Guide, who is responsible for creating the Sprint Goal?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the Sprint Goal is created by the Scrum Team. The Scrum Team, consisting of the Product Owner, Developer, and Scrum Master, collaboratively establishes the Sprint Goal during the Sprint Planning event. The Sprint Goal provides focus and guidance to the team on what needs to be accomplished during the Sprint.", "answers": ["The Product Owner", "The Scrum Master", "The Developers", "The Scrum Team"]}, "correct_response": ["d"], "section": "Udemy", "question_plain": "According to the Scrum Guide, who is responsible for creating the Sprint Goal?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149353, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Who is accountable for managing the work during the Sprint?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the work during the Sprint is managed by the Developers. The Developers self-organize to determine how to best accomplish the work planned for the Sprint. They collaborate, make decisions, and adapt their plan as necessary to deliver a potentially releasable Increment by the end of the Sprint. The Developers are accountable for creating a plan and organizing their work, while also collaborating with the Product Owner and the Scrum Master as needed.", "answers": ["The Scrum Master", "The Product Owner", "The Developers", "The stakeholders"]}, "correct_response": ["c"], "section": "Udemy", "question_plain": "Who is accountable for managing the work during the Sprint?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149351, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Which practice is not permitted in Scrum?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, hardening Sprints are not permitted in Scrum. Scrum emphasizes delivering a valuable, useful Increment of the product at the end of every Sprint. Hardening Sprints, which focus solely on bug fixing, stabilization, or &quot;hardening&quot; of the product, are discouraged as they delay delivering valuable working software. Instead, Scrum promotes the idea of maintaining a consistent pace and quality throughout each Sprint, avoiding the need for separate hardening or stabilization periods.", "answers": ["Continuous integration", "Planning Poker", "Hardening Sprints", "Release planning"]}, "correct_response": ["c"], "section": "Udemy", "question_plain": "Which practice is not permitted in Scrum?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149349, "assessment_type": "multiple-choice", "prompt": {"question": "<p>True or False: The Scrum Master is solely responsible for the successful delivery of the product.</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, the statement that the Scrum Master is responsible for everything is false. While the Scrum Master plays a crucial role in facilitating and coaching the Scrum Team, they are not responsible for all aspects of the team or the product development process. The Scrum Master&#x27;s main focus is on ensuring that the Scrum framework is understood and implemented effectively, helping to remove any impediments that hinder the team&#x27;s progress. However, the responsibility for delivering the product lies with the entire Scrum Team, including the Product Owner and the Developer.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: The Scrum Master is solely responsible for the successful delivery of the product.(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149347, "assessment_type": "multi-select", "prompt": {"question": "<p>Which are suitable topics for discussion in a Sprint Retrospective?</p><p>(select the best three answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", ""], "explanation": "According to the Scrum Guide, the Sprint Retrospective is an event for the Scrum Team to inspect how they worked together and plan ways to improve their effectiveness. The topics for discussion may include how the Scrum Team collaborates, communicates, and performs; the Definition of Done and its alignment with the quality standards; and the team dynamics, such as trust, respect, and conflict resolution. The other options are not suitable topics for discussion in a Sprint Retrospective, as they belong to other events, such as Sprint Planning or Product Backlog refinement.", "answers": ["How the Scrum Team works together.", "Definition of Done.", "The order of work currently represented in the Product Backlog.", "Planning the Sprint Backlog for the next Sprint.", "Team dynamics."]}, "correct_response": ["a", "b", "e"], "section": "Udemy", "question_plain": "Which are suitable topics for discussion in a Sprint Retrospective?(select the best three answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149345, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: The Scrum Team is composed of sub-teams with different roles and responsibilities.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Scrum Team consists of one Scrum Master, one Product Owner, and Developers. Within a Scrum Team, there are no sub-teams or hierarchies. It is a cohesive unit of professionals focused on one objective at a time, the Product Goal. The Scrum Team must have all the skills and competencies needed to deliver an Increment in a Sprint. ", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: The Scrum Team is composed of sub-teams with different roles and responsibilities.", "related_lectures": []}, {"_class": "assessment", "id": 120149343, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: The Sprint Backlog is owned by the Scrum Master.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Sprint Backlog is the set of Product Backlog items selected for the Sprint, plus a plan for delivering the product Increment and realizing the Sprint Goal. The Sprint Backlog is a plan by and for the Developers.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: The Sprint Backlog is owned by the Scrum Master.", "related_lectures": []}, {"_class": "assessment", "id": 120149341, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: There is a break between Sprints to allow the Developers to finish the testing from the last Sprint.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, Sprints are fixed-length events of one month or less that serve as a container for the other Scrum events and the creation of a product Increment. Sprints have consistent durations throughout a development effort and a new Sprint starts immediately after the conclusion of the previous Sprint.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: There is a break between Sprints to allow the Developers to finish the testing from the last Sprint.", "related_lectures": []}, {"_class": "assessment", "id": 120149339, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: Sprint Planning covers how conditions have changed and how the Product Backlog should evolve.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, Sprint Planning covers two topics: the Sprint Goal (why), and the plan for the Sprint Backlog (what and how). The Sprint Goal is an objective that will be met within the Sprint by implementing a subset of the Product Backlog. The plan for the Sprint Backlog is created by the Developers who select and forecast the Product Backlog items they can deliver in the Sprint and how they will do it.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: Sprint Planning covers how conditions have changed and how the Product Backlog should evolve.", "related_lectures": []}, {"_class": "assessment", "id": 120149337, "assessment_type": "multi-select", "prompt": {"question": "<p>What are two efficient methods for the Scrum Team to clarify non-functional requirements?</p><p>(select the best two answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, non-functional requirements are aspects not directly related to product functionality, like performance, security, and usability. They are part of the transparent Product Backlog, which lists all product needs. The Definition of Done sets shared criteria for completed work, including non-functional requirements that must be met each Sprint. Other options are ineffective, creating waste, confusion, or delay in clarifying non-functional requirements.", "answers": ["Add them to the Product Backlog to ensure visibility.", "Add them to the Definition of Done so the work is done every Sprint.", "Put them on a separate sheet on the Scrum board, available for all to see.", "Run the integration and regression tests before the end of the Sprint, and record the remaining work for the Sprint Backlog of the next Sprint."]}, "correct_response": ["a", "b"], "section": "Udemy", "question_plain": "What are two efficient methods for the Scrum Team to clarify non-functional requirements?(select the best two answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149335, "assessment_type": "multiple-choice", "prompt": {"question": "<p>During the Sprint Retrospective a Scrum Team has discovered several high priority process improvements. Which of the following statements is most correct?</p><p>(select the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "During the Sprint Retrospective, the Scrum Team identifies potential improvements and strategies. From these identified improvements, the team may choose to adapt its Definition of Done or implement changes in the upcoming Sprint. The key thing to remember here is the team&#x27;s self-managing nature. Any changes, including those involving process improvements, should be discussed and agreed upon by the team as a whole. This means that the process improvements can be included in the Sprint Backlog for the next Sprint if the team decides that they are important and feasible.", "answers": ["The Scrum Team should pick at least one high priority process improvement to put in the Product Backlog.", "The Scrum Team may include the items in the Sprint Backlog for the next Sprint.", "The Scrum Master chooses the most important process improvement and adds it to the Sprint Backlog.", "The Scrum Team must include at least one high priority process improvement in the Sprint Backlog for the next Sprint."]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "During the Sprint Retrospective a Scrum Team has discovered several high priority process improvements. Which of the following statements is most correct?(select the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149333, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: The Developers are accountable for selecting the Product Owner and reporting productivity.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, the Developers are accountable for creating a plan for the Sprint, the Sprint Backlog, and organizing the work required to meet the Sprint Goal. They are not accountable for selecting the Product Owner, which is a stakeholder role, or reporting productivity, which is not a Scrum artifact or event", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: The Developers are accountable for selecting the Product Owner and reporting productivity.", "related_lectures": []}, {"_class": "assessment", "id": 120149361, "assessment_type": "multi-select", "prompt": {"question": "<p>Which of the following factors can influence the order of items in the Product Backlog?</p><p>(choose all that apply)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", ""], "explanation": "Size of Product Backlog items, the Business priority of Product Backlog items and Dependencies are examples of factors that can influence the order of items in the Product Backlog. Team size and age of the Product Backlog items are not generally considered direct influencers of the order in which Product Backlog items are addressed, although they may influence the capacity of the team and the relevance of the items, respectively.", "answers": ["Size of Product Backlog items", "Team size", "Product Backlog items age", "Business priority of Product Backlog items", "Dependencies"]}, "correct_response": ["a", "d", "e"], "section": "Udemy", "question_plain": "Which of the following factors can influence the order of items in the Product Backlog?(choose all that apply)", "related_lectures": []}, {"_class": "assessment", "id": 120149363, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Which of the following is a recommended approach for reducing technical debt?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "Technical debt is the backlog of work required to resolve issues and deficiencies in software development. Reducing technical debt involves enhancing the Definition of Done. By setting explicit and thorough criteria for determining when a Product Backlog item is considered &quot;Done,&quot; the Developer can guarantee adherence to quality measures and technical standards throughout the Sprint. This proactive approach minimizes the accrual of technical debt and facilitates the production of superior increments.", "answers": ["Having an appropriate Definition of Done", "Allocating more budget for the project", "Increasing the number of daily stand-up meetings", "Extending the Sprint duration"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "Which of the following is a recommended approach for reducing technical debt?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149365, "assessment_type": "multiple-choice", "prompt": {"question": "<p>What should the Developers do for each Product Backlog item selected for a Sprint?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the work that Developers must do on a Product Backlog item selected for a Sprint should be based on what the Product Owner has informed will be done for every item. This means that the Developers should work on the item to meet the agreed-upon criteria outlined in the Definition of Done. The Definition of Done defines the required quality and completeness of the work, including analysis, design, programming, testing, and documentation. ", "answers": ["Whatever is possible", "Everything except for specialized testing such as security or performance", "Everything specified by the Scrum Master", "Whatever was informed by the Product Owner in light of the Definition of Done"]}, "correct_response": ["d"], "section": "Udemy", "question_plain": "What should the Developers do for each Product Backlog item selected for a Sprint?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149367, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Which type of team is empowered to make decisions and responsible for determining the best requirements, architectures, and design?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, a self-managed team is empowered to make decisions and is responsible for determining the best requirements, architectures, and design for the product. Self-managed teams are cross-functional and have the autonomy to collaborate and leverage their diverse skills and perspectives. They are accountable for delivering high-quality increments and continuously improving their processes. Therefore, option B, a self-managed team, is the correct answer.", "answers": ["A centralized team", "A self-managing team", "A specialized team", "A hierarchical team"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "Which type of team is empowered to make decisions and responsible for determining the best requirements, architectures, and design?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149369, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Which of the following tools is mandatory for the Product Owner to use?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", ""], "explanation": "The Scrum Guide does not mandate specific tools for the Product Owner to use. User story mapping, impact mapping, product roadmapping, and agile project management software are all tools that can be useful, but none are required by the Scrum framework itself. The choice of tools is largely determined by the needs of the product, the team, and the wider organization.", "answers": ["User story mapping", "Impact mapping", "Product roadmapping", "Agile project management software", "None of the above"]}, "correct_response": ["e"], "section": "Udemy", "question_plain": "Which of the following tools is mandatory for the Product Owner to use?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149371, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Who has the responsibility for determining how the work is accomplished by the Developers and ensuring they meet the Sprint Goal?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the responsibility for determining how the Developers complete the forecasted Product Backlog items and meet the Sprint Goal lies with the Developers themselves. They are self-managing and cross-functional, meaning they collectively decide how to accomplish the work best. The Scrum Master facilitates and coaches the team, but the decision-making authority lies within the Developers.", "answers": ["The Product Owner", "The Scrum Master", "The Developers", "The Project Manager"]}, "correct_response": ["c"], "section": "Udemy", "question_plain": "Who has the responsibility for determining how the work is accomplished by the Developers and ensuring they meet the Sprint Goal?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149373, "assessment_type": "multiple-choice", "prompt": {"question": "<p>What is the accountability of the Product Owner during the Sprint Retrospective?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the Product Owner is expected to participate as a member of the Scrum Team during the Sprint Retrospective. While the focus of the retrospective is primarily on the Developer and their processes, the Product Owner&#x27;s presence allows for open communication and collaboration within the Scrum Team.", "answers": ["Facilitating the retrospective meeting.", "Providing feedback on the Developer&#x27;s performance.", "Participating as an active member of the Scrum Team.", "Determining the next steps for the Sprint Backlog."]}, "correct_response": ["c"], "section": "Udemy", "question_plain": "What is the accountability of the Product Owner during the Sprint Retrospective?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149375, "assessment_type": "multiple-choice", "prompt": {"question": "<p>What is the recommended action for the Product Owner between the end of the current Sprint and the start of the next Sprint?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, there is no activity gap between Sprints. As soon as one Sprint concludes, the next Sprint starts immediately. This ensures a continuous flow of work and allows the Scrum Team to maintain a sustainable pace.", "answers": ["Refine the Product Backlog.", "Collaborate with the Developer on testing the current Sprint&#x27;s Increment.", "Conduct a review of the project&#x27;s progress with stakeholders.", "There is no gap. A new Sprint starts immediately after the conclusion of the previous Sprint."]}, "correct_response": ["d"], "section": "Udemy", "question_plain": "What is the recommended action for the Product Owner between the end of the current Sprint and the start of the next Sprint?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149377, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Is it mandatory for the Product Owner to be present at the Daily Scrum?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the Daily Scrum is an event for the Developer. The Product Owner and the Scrum Master may attend the Daily Scrum as observers, but they are not required to be there. The purpose of the Daily Scrum is for the Developer to synchronize their activities and plan for the next 24 hours.", "answers": ["Yes, the Product Owner must attend and actively participate.", "No, the Product Owner is not required to be present.", "Yes, the Product Owner needs to provide updates on the Product Backlog.", "No, the Product Owner can only attend if invited by the Scrum Master."]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "Is it mandatory for the Product Owner to be present at the Daily Scrum?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149379, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Which of the following activities is not timeboxed in Scrum?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", ""], "explanation": "According to the Scrum Guide, Scrum defines timeboxes for various activities to provide structure and ensure regular inspection and adaptation. The Daily Scrum, Sprint Planning, and Sprint Review all have defined timeboxes. However, Scrum does not define a specific timebox for refining the Product Backlog. Refinement is an ongoing activity that occurs throughout the Sprint to ensure that Product Backlog items are well-prepared and ready for selection in future Sprints.", "answers": ["Sprint Retrospective.", "Daily Scrum.", "Sprint Planning.", "roduct Backlog Refinement.", "Sprint Review."]}, "correct_response": ["d"], "section": "Udemy", "question_plain": "Which of the following activities is not timeboxed in Scrum?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149381, "assessment_type": "multi-select", "prompt": {"question": "<p>Which of the following is NOT a mandatory element for applying Scrum?</p><p>(choose the best two answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "In the Scrum framework, both the Definition of Done and the Daily Scrum are mandatory elements. The Definition of Done provides a shared understanding of what it means for work to be complete, and the Daily Scrum is a daily meeting to plan work for the next 24 hours. On the other hand, a Release Plan and User Stories are not mandatory. Release planning is a useful practice in many contexts, and user stories are a popular way to express Product Backlog items, but neither are specifically required by Scrum. The Scrum Guide does not prescribe specific artifact formats or planning methods.", "answers": ["Definition of Done.", "Daily Scrum.", "Release Plan.", "User Stories."]}, "correct_response": ["c", "d"], "section": "Udemy", "question_plain": "Which of the following is NOT a mandatory element for applying Scrum?(choose the best two answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149383, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: The Sprint Review is an event where the Scrum Team inspects the outcome of the Sprint and determines future adaptation in collaboration with stakeholders.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "It\u2019s True. The Sprint Review is indeed an event where the Scrum Team inspects the outcome of the Sprint, collaborates with stakeholders, and identifies necessary adaptations for the future. The goal is to ensure the product is evolving in a way that maximizes value and is aligned with stakeholder needs and expectations.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "True or False: The Sprint Review is an event where the Scrum Team inspects the outcome of the Sprint and determines future adaptation in collaboration with stakeholders.", "related_lectures": []}, {"_class": "assessment", "id": 120149385, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Which of the following statements best describes the accountability of the Product Owner in Scrum?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "In Scrum, the Product Owner is accountable for maximizing the value of the product resulting from the work of the Scrum Team. They do this by maintaining and ordering the Product Backlog, clearly expressing Product Backlog items, and ensuring that the Scrum Team understands items in the Product Backlog to the level needed. The Product Owner is not typically involved in defining technical requirements and implementation details; that is the role of the Developers. The Product Owner is also part of the Scrum Team, not external to it. And, the role of a traditional project manager is not a role defined in Scrum, and the responsibilities are distributed among the Scrum Team members.", "answers": ["The Product Owner acts as the project manager.", "The Product Owner is external to the Scrum Team and represents the customers\u2019 needs.", "The Product Owner defines technical requirements and implementation details for the Developers.", "The Product Owner maximizes the value of the product by ordering the Product Backlog and providing clear instructions to the Scrum Team."]}, "correct_response": ["d"], "section": "Udemy", "question_plain": "Which of the following statements best describes the accountability of the Product Owner in Scrum?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149387, "assessment_type": "multiple-choice", "prompt": {"question": "<p>When should a new Increment be available in Scrum?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", "", ""], "explanation": "According to the Scrum Guide, a new Increment must be available by the end of each Sprint. The Increment is a sum of all the Product Backlog items completed during the Sprint, along with the increments of all previous Sprints. This promotes transparency and provides an opportunity for stakeholders to inspect and adapt the product.", "answers": ["When the Developer completes their tasks.", "After obtaining approval from stakeholders.", "By the end of each Sprint.", "When the Product Owner decides it is ready for release.", "Once all bugs and issues are resolved."]}, "correct_response": ["c"], "section": "Udemy", "question_plain": "When should a new Increment be available in Scrum?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149303, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: The Sprint Goal guides the team toward an overarching target for the Sprint.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Sprint Goal is a commitment by the Scrum Team that provides a shared objective for the Sprint. It is a succinct expression of the purpose and desired outcome of the Sprint, created collaboratively by the Developers and the Product Owner during Sprint Planning. The Sprint Goal offers guidance to the Developers on why the Increment is valuable and what needs to be achieved. The Developers can use this overarching target to make decisions about how to do their work and to align their efforts throughout the Sprint, ensuring they are all working toward the same outcome.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "True or False: The Sprint Goal guides the team toward an overarching target for the Sprint.", "related_lectures": []}, {"_class": "assessment", "id": 120149275, "assessment_type": "multiple-choice", "prompt": {"question": "<p>How do you know that a Scrum Team is self-managing? </p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "A self-managing Scrum Team internally decides who does what, when, and how. This autonomy allows them to organize their work in the most efficient and effective way based on their collective knowledge and skills.", "answers": ["Their team is productive.", "The Scrum Team internally decides who does what, when, and how. ", "The Scrum Team has all the skills necessary to create value each Sprint. ", "The Scrum Master allocates tasks to the Developers."]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "How do you know that a Scrum Team is self-managing? (choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149277, "assessment_type": "multiple-choice", "prompt": {"question": "<p>Why is it important for the Developers to conform with the Definition of Done? </p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "The Scrum Guide defines the &quot;Definition of Done&quot; as a formal description of the Increment&#x27;s state when meeting product quality measures. The Product Owner is responsible for maximizing product value from the Scrum Team&#x27;s work. To achieve transparency and a usable, potentially releasable Increment, the Product Owner expects Developers to adhere to the Definition of Done. The other options are incorrect, as they suggest the Product Owner uses the Definition of Done for different purposes, contrary to Scrum values of respect, openness, and empiricism.", "answers": ["To be able to track the team\u2019s progress and report it to the stakeholders. ", "To promote transparency regarding the work that has been done.", "To know what the team will work on next. ", "To have control over what has been done and what remains to be done."]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "Why is it important for the Developers to conform with the Definition of Done? (choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149279, "assessment_type": "multi-select", "prompt": {"question": "<p>A Scrum Team is having a hard time deciding which practices and procedures to apply. What should the Scrum Master do? </p><p>(choose the best two answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "In situations where a Scrum Team is having difficulty deciding which practices and procedures to apply, the Scrum Master should employ coaching techniques and involve the whole team in the decision-making process. The Scrum Master&#x27;s role as a leader who serves allows them to guide the team, using questions and discussions to help identify suitable practices for their specific context. Moreover, by including the entire team in these decisions, the Scrum Master ensures the team maintains its self-managing nature, with everyone&#x27;s perspective being considered, promoting ownership and fostering effective teamwork.", "answers": ["Use coaching techniques.", "Tell them which practices work best for them.", "Involve the whole team in the decision-making process. ", "Ask the more senior members to decide."]}, "correct_response": ["a", "c"], "section": "Udemy", "question_plain": "A Scrum Team is having a hard time deciding which practices and procedures to apply. What should the Scrum Master do? (choose the best two answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149281, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Product Owner must help resolve impediments by adding them to the Product Backlog.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Product Backlog is intended for Product Backlog items that capture features, functionality, and requirements that deliver value to stakeholders. Impediments, on the other hand, are issues that hinder the team&#x27;s progress towards these goals. Rather than being placed in the Product Backlog, impediments should be addressed and resolved as promptly as possible. The Scrum Master typically takes the lead in facilitating the removal of these obstacles. The Product Owner&#x27;s focus should remain on maximizing the value of the work that the Developers do.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Product Owner must help resolve impediments by adding them to the Product Backlog.", "related_lectures": []}, {"_class": "assessment", "id": 120149283, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A Scrum Team can include an undone Product Backlog item in the Increment if they document what is left to do.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The definition of an Increment in Scrum is that it must be &quot;Done.&quot; That means it must meet the Definition of Done established by the Scrum Team. If a Product Backlog item is &quot;undone&quot; or incomplete according to this definition, it cannot be included in the Increment, regardless of whether what&#x27;s left to do is documented. This is to ensure transparency about the completeness and releasability of work, and to maintain quality and value of the Increment.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A Scrum Team can include an undone Product Backlog item in the Increment if they document what is left to do.", "related_lectures": []}, {"_class": "assessment", "id": 120149285, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: If the Developers and Product Owner cannot agree on the Product Backlog items to be developed, Sprint Planning should be canceled and the Sprint should be delayed.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "If there&#x27;s disagreement between the Product Owner and Developers about what to include in the Sprint, it should be resolved through discussion and collaboration, without delaying the Sprint. The Scrum Master, acting as a facilitator, can help ensure this discussion occurs in a constructive and respectful manner. The Sprint Planning must be concluded and the Scrum Team can discuss more about the product during the Sprint while developing new business functionality. Further, they should discuss during the next Sprint Retrospective the causes for the issue and how to prevent it from happening again.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: If the Developers and Product Owner cannot agree on the Product Backlog items to be developed, Sprint Planning should be canceled and the Sprint should be delayed.", "related_lectures": []}, {"_class": "assessment", "id": 120149287, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: When multiple Scrum Teams work from the same Product Backlog, the Developers pull work through discussions with the Product Owner.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "When multiple Scrum Teams are working from the same Product Backlog, collaboration and alignment become even more crucial. The Developers from each team work with the Product Owner to understand and select the Product Backlog items that they will focus on during a Sprint. This is a part of the overall effort to ensure a smooth flow of value delivery and to align the teams with the shared product goal. The Product Owner, with the input from all the Developers, is accountable for maximizing the value of the product resulting from the work of all the Scrum Teams.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "True or False: When multiple Scrum Teams work from the same Product Backlog, the Developers pull work through discussions with the Product Owner.", "related_lectures": []}, {"_class": "assessment", "id": 120149289, "assessment_type": "multiple-choice", "prompt": {"question": "What is the main difference between a Scrum Master and a traditional Project Manager?", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "The main difference between a Scrum Master and a traditional Project Manager is that a Scrum Master establishes Scrum, while a Project Manager plans and controls the project, as stated in the Scrum Guide\u00b9\u00b2. The other options are not correct because they either confuse or contradict the roles and responsibilities of a Scrum Master and a Project Manager.", "answers": ["A Scrum Master manages the product, while a Project Manager manages the project", "A Scrum Master establishes Scrum, while a Project Manager plans and controls the project", "A Scrum Master leads the team, while a Project Manager coordinates the team", "A Scrum Master facilitates the events, while a Project Manager assigns the tasks"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "What is the main difference between a Scrum Master and a traditional Project Manager?", "related_lectures": []}, {"_class": "assessment", "id": 120149291, "assessment_type": "multiple-choice", "prompt": {"question": "<p>When is it most appropriate for a Scrum Team to change the Sprint Goal? </p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "The Sprint Goal, once established during the Sprint Planning, provides guidance to the Developers on why it is building the Increment and aligns them throughout the Sprint. The Sprint Goal should remain unchanged to ensure stability and focus.", "answers": ["During Daily Scrum. ", "The Sprint Goal cannot be changed. ", "During Sprint Review. ", "When there is a new feature request from a stakeholder."]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "When is it most appropriate for a Scrum Team to change the Sprint Goal? (choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149293, "assessment_type": "multiple-choice", "prompt": {"question": "<p>What ensures that an Increment is usable and meets the quality standards for the product?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "The Definition of Done ensures that an Increment is usable and meets the quality standards for the product, as stated in the Scrum Guide. The other options are not correct because they either do not relate to the usability or quality of the Increment, or they imply practices that are not consistent with Scrum, such as &quot;hardening&quot; Sprints or daily reporting to stakeholders.", "answers": ["Following the Definition of Done for all work done in a Sprint.", "Tracking Sprint tasks accurately in the electronic tracking tool.", "Accounting for and estimating all unfinished work to be done in a &quot;hardening&quot; Sprint.", "Communicating Sprint progress to the stakeholders daily."]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "What ensures that an Increment is usable and meets the quality standards for the product?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149295, "assessment_type": "multi-select", "prompt": {"question": "<p>You are the Scrum Master for four Scrum Teams working from the same Product Backlog. Some of the Developers tell you that work planned for the next two Sprints will require full-time involvement from a specialist who is not part of the teams.&nbsp; </p><p><br></p><p>What should the Scrum Master take into account in this situation?</p><p>(choose the best two answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "In a situation where specialist involvement is required, the Scrum Master should consider the potential benefits of the Developers finding a solution by themselves. It could serve as an opportunity to expand the skill set of the Developers and increase the cross-functionality of the team, both of which are desirable aspects in Scrum.\n\nAlso, the Scrum Master should consider the capability of the Scrum Teams to produce integrated Increments. If the specialist is necessary to deliver a &quot;Done&quot; Increment, then this may suggest a lack of skills within the team and prompt a re-evaluation of its composition or a need for upskilling. Remember, the goal of Scrum is not just to increase productivity, but to deliver a valuable, usable increment every Sprint.", "answers": ["Keeping the Developers busy until then.", "The advantage of Developers finding a solution by themselves.", "The capability of the Scrum Teams to produce integrated Increments.", "The need to increase productivity."]}, "correct_response": ["b", "c"], "section": "Udemy", "question_plain": "You are the Scrum Master for four Scrum Teams working from the same Product Backlog. Some of the Developers tell you that work planned for the next two Sprints will require full-time involvement from a specialist who is not part of the teams.&nbsp; What should the Scrum Master take into account in this situation?(choose the best two answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149297, "assessment_type": "multiple-choice", "prompt": {"question": "<p>What are four Scrum events that enable inspection and adaptation?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "The Scrum Guide states that Scrum is based on empiricism, which means that knowledge comes from experience and making decisions based on what is observed. Scrum uses an iterative, incremental approach to optimize predictability and control risk. Three pillars support every implementation of empirical process control: transparency, inspection, and adaptation. Scrum defines four formal events for inspection and adaptation, namely Sprint Planning, Daily Scrum, Sprint Review, and Sprint Retrospective. ", "answers": ["Sprint Planning, Daily Scrum, Sprint Retrospective, and Release Planning.", "Sprint Planning, Daily Scrum, Sprint Review, and Sprint Retrospective.", "Daily Scrum, Refinement Meeting, Sprint Review, and Sprint Retrospective.", "Sprint Planning, Refinement Meeting, Sprint Review, and Release Planning."]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "What are four Scrum events that enable inspection and adaptation?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149299, "assessment_type": "multiple-choice", "prompt": {"question": "<p>What are the three elements of the Sprint Backlog that are defined during Sprint Planning?</p><p>(choose the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "The Scrum Guide states that the Sprint Backlog consists of the Sprint Goal (why), the set of Product Backlog items selected for the Sprint (what), and an actionable plan for delivering the Increment (how). The Sprint Backlog is a plan by and for the Developers. It is a highly visible, real-time picture of the work that the Developers plan to do during the Sprint, and it belongs only to the Developers.", "answers": ["The Sprint Goal, the selected Product Backlog items, and the Definition of Done.", "The Sprint Goal, the selected Product Backlog items, and the plan for delivering the Increment.", "The Sprint Goal, the plan for delivering the Increment, and the time-box for the Sprint.", "The Product Backlog items, the plan for delivering the Increment, and the Definition of Done."]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "What are the three elements of the Sprint Backlog that are defined during Sprint Planning?(choose the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149301, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: The Developers manage the stakeholders for the Sprint Review.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "Typically, the Product Owner is accountable for engaging stakeholders and ensuring they attend the Sprint Review, not the Developers. The Sprint Review is an opportunity for stakeholders to provide feedback on the work completed during the sprint and to discuss the Product Backlog. While the Developers certainly participate in this event, and share the work they&#x27;ve done, they do not manage the stakeholders for it. ", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: The Developers manage the stakeholders for the Sprint Review.", "related_lectures": []}, {"_class": "assessment", "id": 120149331, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A high-performance Scrum Team guarantees that each Increment is done by performing a Release Sprint.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "According to the Scrum Guide, a Release Sprint is not a concept in Scrum. Each Sprint must result in a potentially releasable Increment that meets the Definition of Done. A high-performance Scrum Team does not need a separate Sprint to finalize or release their work, as they deliver value continuously and frequently.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: A high-performance Scrum Team guarantees that each Increment is done by performing a Release Sprint.", "related_lectures": []}, {"_class": "assessment", "id": 120149305, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: The Product Owner is responsible for estimating the Product Backlog items.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The responsibility of estimating the Product Backlog items primarily rests with the Developers, not the Product Owner. The Developers possess the necessary technical knowledge and understanding of the work involved to provide reliable estimates. The Product Owner clarifies the details and the value of the Product Backlog items, but the Developers are responsible for the estimates, which can influence the selection and ordering of items for a Sprint. This collaboration ensures a realistic understanding of what can be accomplished in a given Sprint and promotes transparency and mutual commitment among all members of the Scrum Team.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: The Product Owner is responsible for estimating the Product Backlog items.", "related_lectures": []}, {"_class": "assessment", "id": 120149307, "assessment_type": "multiple-choice", "prompt": {"question": "<p>What factor should be the primary driver for determining the Sprint length?</p><p>(select the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "The primary factor for determining the Sprint length is &quot;The need for the team to inspect and adapt based on delivering work and getting feedback.&quot; While other factors such as stakeholder engagement and organizational practices may influence the decision, Scrum&#x27;s heart lies in its inspect and adapt ethos. It requires teams to continuously evaluate their work and adjust based on that feedback, leading to the delivery of higher value outcomes. Hence, the Sprint length should facilitate this iterative learning and improvement cycle.", "answers": ["The need for the team to inspect and adapt based on delivering work and getting feedback.", "The organization&#x27;s budget cycle.", "The frequency at which stakeholders can be engaged.", "The organization has standardized similar length Sprints."]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "What factor should be the primary driver for determining the Sprint length?(select the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149309, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: The Developers can change the content and order of the Sprint Backlog throughout the Sprint.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Sprint Backlog is a plan for achieving the Sprint Goal, comprising selected Product Backlog items and a delivery plan. It&#x27;s a highly visible real-time picture of work planned for the Sprint, updated throughout as Developers learn more. The Sprint Backlog emerges as Developers work and learn, with new work added, estimated remaining work updated, and unnecessary elements removed. Only Developers can change its content and order, and new work should be added promptly when identified, not by the Product Owner, Scrum Master, or during the Daily Scrum.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "True or False: The Developers can change the content and order of the Sprint Backlog throughout the Sprint.", "related_lectures": []}, {"_class": "assessment", "id": 120149311, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: The Developers share accountability for all items in the Sprint Backlog.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Developers in the Scrum Team are responsible for creating a usable Increment each Sprint, with diverse skills and collective accountability. They collaborate, support each other, and work as one team, regardless of individual titles or roles. The Sprint Backlog is a plan for achieving the Sprint Goal, comprising selected Product Backlog items and a delivery plan. All estimates and selection of items are their responsibility. There is no individual accountability for items; it is a collective accountability of all Developers in the Scrum Team.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "True or False: The Developers share accountability for all items in the Sprint Backlog.", "related_lectures": []}, {"_class": "assessment", "id": 120149313, "assessment_type": "multi-select", "prompt": {"question": "<p>At the fifth Sprint Review, the stakeholders are unhappy and frustrated. They have realized that the product or system being developed will not meet their expectations and will exceed their budget. What factors probably caused this?</p><p>(select the best two answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, the Product Owner is responsible for engaging the stakeholders and ensuring that their needs are reflected in the Product Backlog. The Sprint Review is an opportunity for the stakeholders to inspect the product Increment and give feedback to the Scrum Team. The other options are not relevant, as they are either outside the scope of Scrum or not related to stakeholder satisfaction.", "answers": ["The Product Owner has not been communicating the status of the project to the stakeholders.", "The stakeholders were not involved in ordering Product Backlog items.", "The Project Management Office has not been providing adequate guidance.", "The stakeholders have not been using the Sprint Reviews to inspect and provide feedback."]}, "correct_response": ["a", "d"], "section": "Udemy", "question_plain": "At the fifth Sprint Review, the stakeholders are unhappy and frustrated. They have realized that the product or system being developed will not meet their expectations and will exceed their budget. What factors probably caused this?(select the best two answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149315, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: The Definition of Done is a formal description of the state of the Increment when it meets the quality measures required for the product.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Definition of Done in Scrum is a formal description of the Increment&#x27;s quality measures. It ensures transparency and shared understanding of completed work. Items not meeting the Definition of Done cannot be released or presented at the Sprint Review; they return to the Product Backlog. The Definition of Done varies per Scrum Team and evolves as the team matures, leading to higher quality, increased value, and reduced technical debt in each Increment. Improving the Definition of Done is an expected outcome as the Scrum Team matures.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "True or False: The Definition of Done is a formal description of the state of the Increment when it meets the quality measures required for the product.", "related_lectures": []}, {"_class": "assessment", "id": 120149317, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: A burndown chart is a graphical representation of work left to do versus time.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Scrum Guide acknowledges the usefulness of projective practices like burn-downs, burn-ups, and cumulative flows for forecasting progress. However, these should not replace the importance of empiricism. In complex environments, only past events can inform future decisions. A burndown chart is a simple graphical representation of work remaining versus time. It shows progress but doesn&#x27;t track individual productivity, business value, or cost, as these metrics don&#x27;t align with Scrum&#x27;s empirical nature and value of collaboration and self-organization.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "True or False: A burndown chart is a graphical representation of work left to do versus time.", "related_lectures": []}, {"_class": "assessment", "id": 120149319, "assessment_type": "multi-select", "prompt": {"question": "<p>Commitment is vital to realize the value of Scrum. What behaviors show the commitment of Scrum Team members?</p><p>(select the best two answers)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "According to the Scrum Guide, commitment is one of the Scrum values, and it means that people have a sense of responsibility and focus on creating value. Commitment is demonstrated by supporting each other as a team and doing the best work possible. The other options are not indicators of commitment, as they are either unrealistic expectations or unsustainable practices.", "answers": ["Always complete all the selected Product Backlog items for the Sprint.", "Support your fellow Scrum Team members.", "Do your highest quality work.", "Work overtime."]}, "correct_response": ["b", "c"], "section": "Udemy", "question_plain": "Commitment is vital to realize the value of Scrum. What behaviors show the commitment of Scrum Team members?(select the best two answers)", "related_lectures": []}, {"_class": "assessment", "id": 120149321, "assessment_type": "multiple-choice", "prompt": {"question": "<p>When Developers are facing difficulties delivering an Increment because they do not understand a non-functional requirement, what should they do?</p><p>(select the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "When Developers encounter difficulties due to a misunderstanding of a non-functional requirement, they should opt for &quot;Work with the Product Owner to determine what is feasible and acceptable.&quot; This collaboration promotes clearer understanding and aligns both the Developers and the Product Owner on what needs to be delivered, ensuring that the Increment meets the business requirements and delivers value to stakeholders.", "answers": ["Develop what they can and ask for help during Sprint Review.", "Postpone the work to the Release Sprint.", "Delegate the work to external teams.", "Work with the Product Owner to determine what is feasible and acceptable."]}, "correct_response": ["d"], "section": "Udemy", "question_plain": "When Developers are facing difficulties delivering an Increment because they do not understand a non-functional requirement, what should they do?(select the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149323, "assessment_type": "multiple-choice", "prompt": {"question": "<p>When should the Product Owner participate in the Daily Scrum?</p><p>(select the best answer)</p>", "relatedLectureIds": "", "feedbacks": ["", "", "", ""], "explanation": "The Product Owner should participate in the Daily Scrum &quot;Whenever the Product Owner is working on items on the Sprint Backlog: however, they participate as a Developer.&quot; The Daily Scrum is an event primarily for the Developers to inspect progress towards the Sprint Goal and adapt the Sprint Backlog as necessary. The Product Owner may attend if they are actively contributing to items in the Sprint Backlog, but they participate as a Developer in this context.", "answers": ["Whenever the Developers need clarification regarding Product Backlog items.", "Whenever the Product Owner is working on items on the Sprint Backlog: however, they participate as a Developer.", "Whenever the Product Owner has updates regarding the marketplace.", "Whenever the Scrum Master tells the Product Owner to be there."]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "When should the Product Owner participate in the Daily Scrum?(select the best answer)", "related_lectures": []}, {"_class": "assessment", "id": 120149325, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: The Sprint Goal is crafted by the Scrum Team during the Sprint Planning event.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Sprint Goal is a single objective for the Sprint, providing flexibility in achieving it. It fosters coherence and team focus. Defined during Sprint Planning, the whole Scrum Team collaborates to craft it, expressing the Sprint&#x27;s purpose. The Sprint Goal is mandatory in Scrum, guiding the team, and should be finalized before Sprint Planning ends, based on Product Backlog selection and ordering.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "True or False: The Sprint Goal is crafted by the Scrum Team during the Sprint Planning event.", "related_lectures": []}, {"_class": "assessment", "id": 120149327, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: The Developers are accountable for creating and managing the Sprint Backlog.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "The Sprint Backlog is a plan to achieve the Sprint Goal, comprising selected Product Backlog items and a delivery plan. It&#x27;s a visible, real-time representation of work planned for the Sprint. The Sprint Planning event involves the entire Scrum Team collaborating to define a Sprint Goal that aligns with the Product Backlog. The Developers create and manage the Sprint Backlog, selecting items they can deliver as a valuable Increment and defining the work needed for a &quot;Done&quot; Increment. The plan can be adjusted during the Sprint as more is learned. Hence, the Sprint Backlog is best described as the Developers&#x27; plan for the Sprint, resulting from the Sprint Planning event.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["a"], "section": "Udemy", "question_plain": "True or False: The Developers are accountable for creating and managing the Sprint Backlog.", "related_lectures": []}, {"_class": "assessment", "id": 120149329, "assessment_type": "multiple-choice", "prompt": {"question": "True or False: If the Developers realize they have selected too much work to finish in the Sprint, they should reduce the Definition of Done and get all of the Product Backlog items done by the new definition.", "relatedLectureIds": "", "feedbacks": ["", ""], "explanation": "If the Developers realize they have taken on too much work for a Sprint, reducing the Definition of Done is not the appropriate response. The Definition of Done is a set of shared understandings about what it means for work to be complete. It should be a standard that ensures quality and is not something that should be changed to accommodate an overbooked Sprint. Instead, the Developers should work with the Product Owner to negotiate which items in the Sprint Backlog can be removed or postponed, ensuring that the most valuable work remains. It is key that the Scrum Team communicates openly and regularly about progress to make these adjustments as necessary.", "answers": ["TRUE", "FALSE"]}, "correct_response": ["b"], "section": "Udemy", "question_plain": "True or False: If the Developers realize they have selected too much work to finish in the Sprint, they should reduce the Definition of Done and get all of the Product Backlog items done by the new definition.", "related_lectures": []}]}</script>
+<script>
+var DATA = JSON.parse(document.getElementById("quiz-data-script").textContent);
+var questions = [];
+var userAnswers = [];
+var flagged = [];
+var checked = [];
+var currentQ = 0;
+var timerInterval = null;
+var seconds = 0;
+var examFinished = false;
+var mode = "exam";
+var selectedMode = "exam";
+var STORAGE_KEY = "attempts_" + DATA.title.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 60);
+
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+}
+
+function formatTime(sec) {
+  var h = Math.floor(sec / 3600);
+  var m = String(Math.floor((sec % 3600) / 60)).padStart(2, "0");
+  var s = String(sec % 60).padStart(2, "0");
+  if (h > 0) return String(h).padStart(2, "0") + ":" + m + ":" + s;
+  return "00:" + m + ":" + s;
+}
+
+function formatDescription(html) {
+  if (!html) return "";
+  // Convert - bullet points to real bullets if regex matches
+  // Matches "- text<br>" or "- text$"
+  return html.replace(/(?:^|<br>)\s*-\s+(.*?)(?=<br>|$)/g, "<li>$1</li>")
+             .replace(/((?:<li>.*?<\/li>\s*)+)/g, "<ul>$1</ul>");
+}
+
+// ── Helper: Format Answer ──────────────────────────────────
+function formatAnswer(text) {
+  if (!text) return "";
+  if (text.includes("<pre") || text.includes("<code")) return text;
+
+  // Heuristic: If text has newlines and starts with { or [, treat as code (JSON/Array)
+  var trimmed = text.trim();
+  if (trimmed.length > 20 && (trimmed.startsWith("{") || trimmed.startsWith("["))) {
+     try {
+       // Try to parse and re-stringify for perfect indentation
+       var obj = JSON.parse(text);
+       var pretty = JSON.stringify(obj, null, 2);
+       return '<pre><code>' + syntaxHighlight(pretty) + '</code></pre>';
+     } catch(e) {
+       // Fallback for partial/invalid JSON
+       return '<pre><code>' + syntaxHighlight(text) + '</code></pre>';
+     }
+  }
+  return text.replace(/\n/g, "<br>");
+}
+
+function syntaxHighlight(json) {
+    if (typeof json !== 'string') {
+         json = JSON.stringify(json, undefined, 2);
+    }
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'highlight-number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'highlight-key';
+            } else {
+                cls = 'highlight-string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'highlight-boolean';
+        } else if (/null/.test(match)) {
+            cls = 'highlight-null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
+}
+
+function highlightGeneric(text) {
+    // 1. Strings (double and single quoted)
+    // 2. Comments (// and #)
+    // 3. Keywords
+    // 4. Numbers
+    
+    // HTML Escape first
+    text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
+    // Comments: // ... or # ...
+    // We must handle strings first to avoid replacing inside strings, but simple regex is hard.
+    // Let's do a simple pass: Tokenize by likely boundaries?
+    // Actually, simple regex replacement order matters. Strings first, then comments? 
+    // But comment markers can be inside strings.
+    // A robust way is to match ALL tokens in one regex.
+    
+    // 5. ARNs and AWS patterns (e.g. arn:aws:..., aws:RequestedRegion) - treat as string/key
+    // Match arn:... or aws:... until end of word or path
+    
+    const re = /("(?:\\.|[^\\"])*"\s*:)|("(?:\\.|[^\\"])*"|'(?:\\.|[^\\'])*')|(\/\/.*$|#.*$|\/\*[\s\S]*?\*\/)|(\b(?:arn|aws):[\w\-:/*.]+\b)|(\b(?:def|class|function|var|let|const|if|else|return|void|int|public|private|static|import|from|try|catch|while|for|switch|case|break|continue|new|this|true|false|null)\b)|(\b\d+(?:\.\d+)?\b)/gm;
+    
+    return text.replace(re, function(match, keyPair, string, comment, aws, keyword, number) {
+        if (keyPair) {
+             return keyPair.replace(/^"((?:\\.|[^\\"])*)"/, '<span class="highlight-key">"$1"</span>');
+        }
+        if (string) return '<span class="highlight-string">' + string + '</span>';
+        if (comment) return '<span class="highlight-comment">' + comment + '</span>';
+        if (aws) return '<span class="highlight-string">' + aws + '</span>'; // Treat ARNs as strings (orange) 
+        if (keyword) return '<span class="highlight-keyword">' + keyword + '</span>';
+        if (number) return '<span class="highlight-number">' + number + '</span>';
+        return match;
+    });
+}
+
+// ── localStorage Attempts ──────────────────────────────────
+
+function getAttempts() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e) { return []; }
+}
+
+function saveAttempt(data) {
+  var attempts = getAttempts();
+  attempts.unshift(data);
+  if (attempts.length > 20) attempts = attempts.slice(0, 20);
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(attempts)); } catch(e) {}
+}
+
+function clearAttempts() {
+  if (!confirm("Clear all past attempts for this test?")) return;
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  renderAttempts();
+}
+
+function loadAttempt(idx) {
+  var attempts = getAttempts();
+  var att = attempts[idx];
+  
+  if (!att.snapshot) {
+    alert("This attempt cannot be reviewed because it was saved before the 'Full History' feature was added.\n\nPlease take a new exam to enable detailed review.");
+    return;
+  }
+  
+  // Restore state from snapshot
+  questions = att.snapshot;
+  mode = "review";
+  examFinished = true;
+  userAnswers = att.answers || [];
+  flagged = att.flagged || new Array(questions.length).fill(false);
+  checked = new Array(questions.length).fill(true);
+    
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("scoreScreen").classList.add("hidden");
+  document.getElementById("quizScreen").classList.remove("hidden");
+    
+  document.getElementById("exitBtn").classList.remove("hidden");
+  document.getElementById("endExamBtn").classList.add("hidden");
+  document.getElementById("checkRow").classList.add("hidden");
+  document.getElementById("modeBadge").textContent = "History";
+  document.getElementById("modeBadge").className = "mode-badge history";
+    
+  currentQ = 0;
+  activeFilter = "all";
+  activeSection = "all";
+  buildGrid();
+  buildNavFilters();
+  renderQuestion();
+}
+
+function renderAttempts() {
+  var section = document.getElementById("attemptsSection");
+  var attempts = getAttempts();
+  if (attempts.length === 0) {
+    section.innerHTML = "";
+    return;
+  }
+  
+  var passGoal = getPassPercent();
+  
+  var html = '<div class="attempts-header"><h3>📊 Past Attempts</h3><button class="btn btn-ghost" onclick="clearAttempts()">Clear History</button></div>';
+  html += '<table class="attempts-table"><thead><tr><th>Date</th><th>Mode</th><th>Score</th><th>Result</th><th>Time</th><th></th></tr></thead><tbody>';
+  for (var i = 0; i < attempts.length; i++) {
+    var a = attempts[i];
+    var pClass = a.pct >= passGoal ? "pass" : "fail";
+    var canReview = !!a.snapshot;
+    var rowClass = canReview ? "clickable" : "legacy";
+    var title = canReview ? "Click to review attempt" : "Legacy attempt (score only)";
+    
+    html += '<tr class="' + rowClass + '" onclick="loadAttempt(' + i + ')" title="' + title + '">';
+    html += '<td>' + a.date + '</td>';
+    html += '<td><span class="attempt-mode ' + a.mode + '">' + a.mode + '</span></td>';
+    html += '<td>' + a.correct + '/' + a.total + '</td>';
+    html += '<td><span class="attempt-score ' + pClass + '">' + a.pct + '%</span></td>';
+    html += '<td>' + a.time + '</td>';
+    html += '<td>' + (canReview ? '<span style="font-size:14px">👁️</span>' : '<span style="opacity:0.3">🚫</span>') + '</td>';
+    html += '</tr>';
+  }
+  html += '</tbody></table>';
+  section.innerHTML = html;
+}
+
+// ── Init ────────────────────────────────────────────────────
+
+function getPassPercent() {
+  // Logic: 
+  // If pass_score is provided and > 100, assuming it's a scaled score (e.g. 720/1000) -> 72%
+  // If pass_score is <= 100, assume it's the percentage.
+  // Default to 72% if missing.
+  if (DATA.pass_score) {
+    if (DATA.pass_score > 100) return Math.round(DATA.pass_score / 10);
+    return DATA.pass_score;
+  }
+  return 72; // Default
+}
+
+function init() {
+  document.getElementById("examTitle").textContent = DATA.title;
+  document.getElementById("headerTitle").textContent = DATA.title;
+  document.getElementById("examCount").textContent = DATA.assessments.length + " Questions";
+  
+  // Initial shuffle for fresh start
+  initQuestions();
+  renderAttempts();
+  renderQuickStats();
+}
+
+function renderQuickStats() {
+  var container = document.getElementById("quickStats");
+  var attempts = getAttempts();
+  if (attempts.length === 0) { container.innerHTML = ""; return; }
+  var passGoal = getPassPercent();
+  var best = 0, last = attempts[0].pct;
+  for (var i = 0; i < attempts.length; i++) { if (attempts[i].pct > best) best = attempts[i].pct; }
+  var bClass = best >= passGoal ? "pass" : "fail";
+  var lClass = last >= passGoal ? "pass" : "fail";
+  container.innerHTML = '<span class="quick-stat">Best: <span class="qs-val ' + bClass + '">' + best + '%</span></span>' +
+    '<span class="quick-stat">Last: <span class="qs-val ' + lClass + '">' + last + '%</span></span>' +
+    '<span class="quick-stat">Attempts: <span class="qs-val">' + attempts.length + '</span></span>';
+}
+
+function initQuestions() {
+  var indexed = DATA.assessments.map(function(a, i) { return Object.assign({}, a, {_origIdx: i}); });
+  questions = shuffle(indexed);
+
+  questions.forEach(function(q) {
+    var prompt = q.prompt;
+    var isMulti = q.assessment_type === "multi-select" || q.correct_response.length > 1;
+    q._isMulti = isMulti;
+    var answers = prompt.answers.map(function(ans, i) { return {text: ans, origLetter: String.fromCharCode(97 + i)}; });
+    var shuffled = shuffle(answers);
+    q._shuffledAnswers = shuffled;
+    // Map correct response letters to indices in the shuffled array
+    q._correctMapped = q.correct_response.map(function(cr) { return shuffled.findIndex(function(s) { return s.origLetter === cr; }); });
+  });
+}
+
+// ── Mode Selection → Info Panel ─────────────────────────────
+
+function selectMode(m) {
+  selectedMode = m;
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("infoPanel").classList.remove("hidden");
+
+  document.getElementById("infoTitle").textContent = DATA.title;
+  document.getElementById("infoQuestions").textContent = DATA.assessments.length;
+  
+  // Time/Pass metadata
+  var dur = DATA.duration || Math.round(DATA.assessments.length * 2); // default 2 min/q if unknown
+  document.getElementById("infoTime").textContent = dur + " min";
+  var pass = getPassPercent();
+  document.getElementById("infoPass").textContent = pass + "%";
+  
+  // Prepare description
+  var descEl = document.getElementById("infoDesc");
+  if (DATA.description) {
+    descEl.innerHTML = formatDescription(DATA.description);
+    descEl.style.display = "";
+  } else {
+    descEl.style.display = "none";
+  }
+}
+
+function goBackToStart() {
+  document.getElementById("infoPanel").classList.add("hidden");
+  document.getElementById("startScreen").classList.remove("hidden");
+  document.getElementById("scoreScreen").classList.add("hidden");
+  renderAttempts();
+  renderQuickStats();
+}
+
+function exitReview() {
+  showModal("📚", "Exit Review?", "Return to the start screen?", "Exit", function() {
+    closeModal();
+    clearInterval(timerInterval);
+    document.getElementById("quizScreen").classList.add("hidden");
+    document.getElementById("startScreen").classList.remove("hidden");
+    document.getElementById("exitBtn").classList.add("hidden");
+    document.getElementById("navFilters").innerHTML = "";
+    document.getElementById("navSummary").innerHTML = "";
+    activeFilter = "all";
+    activeSection = "all";
+    initQuestions();
+    renderAttempts();
+    renderQuickStats();
+  }, function() { closeModal(); });
+}
+
+// ── Start Exam ──────────────────────────────────────────────
+
+function startExam() {
+  mode = selectedMode;
+  var badge = document.getElementById("modeBadge");
+  badge.textContent = mode === "exam" ? "Exam" : "Review";
+  badge.className = "mode-badge " + mode;
+  badge.classList.remove("hidden");
+
+  // Re-shuffle for new exam
+  initQuestions();
+
+  userAnswers = [];
+  flagged = [];
+  checked = [];
+  for (var i = 0; i < questions.length; i++) {
+    userAnswers.push([]);
+    flagged.push(false);
+    checked.push(false);
+  }
+  currentQ = 0;
+  seconds = DATA.duration ? DATA.duration * 60 : 0;
+  examFinished = false;
+
+  document.getElementById("infoPanel").classList.add("hidden");
+  document.getElementById("scoreScreen").classList.add("hidden");
+  document.getElementById("quizScreen").classList.remove("hidden");
+  
+  // Show/Hide buttons
+  document.getElementById("exitBtn").classList.remove("hidden"); // Exit button always useful?
+  document.getElementById("endExamBtn").classList.remove("hidden");
+
+  if (mode === "review") {
+    document.getElementById("checkRow").classList.remove("hidden");
+    document.getElementById("liveScore").classList.remove("hidden");
+    document.getElementById("exitBtn").classList.remove("hidden"); 
+    updateLiveScore();
+  } else {
+    document.getElementById("checkRow").classList.add("hidden");
+    document.getElementById("liveScore").classList.add("hidden");
+  }
+
+  buildGrid();
+  activeFilter = "all";
+  activeSection = "all";
+  buildNavFilters();
+  renderQuestion();
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  var isCountdown = !!DATA.duration;
+  var timerEl = document.getElementById("timer");
+  
+  timerInterval = setInterval(function() {
+    if (isCountdown) {
+      seconds--;
+      if (seconds <= 0) {
+        seconds = 0;
+        clearInterval(timerInterval);
+        showModal("⏱", "Time's Up!", "Your time has expired. The exam will now be scored.", "View Results", function() { closeModal(); examFinished = true; clearInterval(timerInterval); showScore(); }, null);
+        return;
+      }
+      // Timer urgency
+      if (seconds <= 60) { timerEl.className = "timer critical"; }
+      else if (seconds <= 300) { timerEl.className = "timer urgent"; }
+      else { timerEl.className = "timer"; }
+    } else {
+      seconds++;
+      timerEl.className = "timer";
+    }
+    timerEl.textContent = formatTime(seconds);
+  }, 1000);
+  
+  timerEl.textContent = formatTime(seconds);
+  timerEl.className = "timer";
+}
+
+// ── Live Score (Review Mode) ────────────────────────────────
+
+function updateLiveScore() {
+  if (mode !== "review") return;
+  var answered = 0, correct = 0;
+  for (var i = 0; i < questions.length; i++) {
+    if (checked[i]) {
+      answered++;
+      if (checkCorrect(i)) correct++;
+    }
+  }
+  var el = document.getElementById("liveScore");
+  if (answered === 0) {
+    el.textContent = "Score: 0/0";
+    el.className = "live-score";
+  } else {
+    var pct = Math.round(correct / answered * 100);
+    var pass = getPassPercent();
+    el.textContent = "Score: " + correct + "/" + answered + " (" + pct + "%)";
+    el.className = "live-score" + (pct < pass ? " failing" : "");
+  }
+}
+
+// ── Grid ────────────────────────────────────────────────────
+
+function buildGrid() {
+  var grid = document.getElementById("qGrid");
+  grid.innerHTML = "";
+  for (var i = 0; i < questions.length; i++) {
+    var dot = document.createElement("div");
+    dot.className = "q-dot";
+    dot.textContent = i + 1;
+    dot.setAttribute("data-index", i);
+    dot.onclick = function() {
+      currentQ = parseInt(this.getAttribute("data-index"));
+      renderQuestion();
+      window.scrollTo(0, 0);
+    };
+    grid.appendChild(dot);
+  }
+}
+
+function updateGrid() {
+  var dots = document.querySelectorAll(".q-dot");
+  for (var i = 0; i < dots.length; i++) {
+    var dot = dots[i];
+    dot.className = "q-dot";
+    if (i === currentQ) dot.classList.add("current");
+
+    if (examFinished) {
+      if (userAnswers[i].length > 0) {
+        if (checkCorrect(i)) dot.classList.add("correct-dot");
+        else dot.classList.add("incorrect-dot");
+      }
+    } else if (mode === "review" && checked[i]) {
+      if (checkCorrect(i)) dot.classList.add("correct-dot");
+      else dot.classList.add("incorrect-dot");
+    } else if (userAnswers[i].length > 0) {
+      dot.classList.add("answered");
+    }
+    if (flagged[i]) dot.classList.add("flagged");
+  }
+}
+
+function checkCorrect(qi) {
+  var q = questions[qi];
+  var correct = q._correctMapped.slice().sort().join(",");
+  var user = userAnswers[qi].slice().sort().join(",");
+  return correct === user && user !== "";
+}
+
+// ── Render Question ─────────────────────────────────────────
+
+function renderQuestion() {
+  var q = questions[currentQ];
+  var prompt = q.prompt;
+  var isMulti = q._isMulti;
+  var isChecked = checked[currentQ];
+  var showAnswer = examFinished || (mode === "review" && isChecked);
+
+  // Trigger animation
+  var content = document.getElementById("quizContent");
+  content.style.animation = "none";
+  content.offsetHeight; // reflow
+  content.style.animation = "";
+
+  document.getElementById("qNumber").textContent = "Question " + (currentQ + 1) + " of " + questions.length;
+  document.getElementById("qSection").textContent = q.section || "";
+  document.getElementById("qSection").style.display = q.section ? "" : "none";
+
+  var typeEl = document.getElementById("qType");
+  if (isMulti) {
+    typeEl.innerHTML = "☑ Select " + q.correct_response.length + " answers";
+  } else {
+    typeEl.innerHTML = "◉ Select one answer";
+  }
+
+  var qTextField = document.getElementById("qText");
+  qTextField.innerHTML = prompt.question || "";
+  
+  // Fix list styling
+  if(qTextField.innerHTML.includes("- ")) {
+       qTextField.innerHTML = formatDescription(qTextField.innerHTML);
+  }
+  
+  // 0. Coalesce adjacent <p><code>...</code></p> blocks into <pre>...</pre>
+  // Udemy often renders code blocks as separate paragraphs, causing "striped" styling.
+  var children = Array.from(qTextField.children);
+  var currentBlock = [];
+  
+  function processBlock(nodes) {
+      if (nodes.length === 0) return;
+      
+      // If it's a single line but looks like a standalone code block (starts with { or [), convert to pre
+      // If it's just a variable name in a P, maybe keep it? 
+      // User complaint was "background on every line", which implies multi-line.
+      if (nodes.length === 1 && nodes[0].textContent.trim().length < 50 && !nodes[0].textContent.trim().match(/[{[]/)) {
+          return; 
+      }
+
+      var first = nodes[0];
+      var pre = document.createElement("pre");
+      // Join with newlines and Normalize non-breaking spaces to regular spaces
+      var combinedText = nodes.map(function(n) { return n.textContent; }).join("\n").replace(/\u00A0/g, " ");
+      pre.textContent = combinedText;
+      
+      first.parentNode.insertBefore(pre, first);
+      nodes.forEach(function(n) { n.remove(); });
+  }
+
+  children.forEach(function(child) {
+      var isCodeP = false;
+      if (child.tagName === "P") {
+          var code = child.querySelector("code");
+          // Check if P contains *only* code (ignoring whitespace)
+          if (code && child.textContent.trim() === code.textContent.trim()) {
+              isCodeP = true;
+          }
+      }
+
+      if (isCodeP) {
+          currentBlock.push(child);
+      } else {
+          processBlock(currentBlock);
+          currentBlock = [];
+      }
+  });
+  processBlock(currentBlock);
+
+  // Auto-highlight code blocks in question
+  var codeBlocks = qTextField.querySelectorAll("pre, code");
+  codeBlocks.forEach(function(block) {
+      // Skip code elements that are inside pre (avoid double highlight)
+      if (block.tagName === 'CODE' && block.closest('pre')) return;
+
+      var txt = block.textContent;
+      try {
+         var trimmed = txt.trim();
+         // Only attempt JSON parse if it's a PRE block (likely full JSON)
+         if (block.tagName === 'PRE' && (trimmed.startsWith("{") || trimmed.startsWith("["))) {
+             var obj = JSON.parse(trimmed);
+             var pretty = JSON.stringify(obj, null, 2);
+             block.innerHTML = '<code>' + syntaxHighlight(pretty) + '</code>';
+         } else {
+             // Use generic highlighter
+             if (block.tagName === 'PRE') {
+                block.innerHTML = '<code>' + highlightGeneric(txt) + '</code>';
+             } else {
+                block.innerHTML = highlightGeneric(txt);
+             }
+         }
+      } catch(e) {
+         if (block.tagName === 'PRE') {
+            block.innerHTML = '<code>' + highlightGeneric(txt) + '</code>';
+         } else {
+            block.innerHTML = highlightGeneric(txt);
+         }
+      }
+      // Ensure strict styling
+      block.style.textDecoration = "none";
+  });
+  
+  document.getElementById("progressFill").style.width = ((currentQ + 1) / questions.length * 100) + "%";
+  var answered = userAnswers.filter(function(a){ return a.length > 0; }).length;
+  document.getElementById("progressCounter").textContent = answered + " / " + questions.length;
+
+  // Answers
+  var container = document.getElementById("answers");
+  container.innerHTML = "";
+  for (var i = 0; i < q._shuffledAnswers.length; i++) {
+    (function(idx) {
+      var ans = q._shuffledAnswers[idx];
+      var div = document.createElement("div");
+      var isSelected = userAnswers[currentQ].indexOf(idx) >= 0;
+      var isCorrectAnswer = q._correctMapped.indexOf(idx) >= 0;
+
+      div.className = "answer";
+      if (isSelected) div.classList.add("selected");
+      if (showAnswer) {
+        div.classList.add("locked");
+        if (isCorrectAnswer && isSelected) div.classList.add("correct");
+        else if (isCorrectAnswer && !isSelected) div.classList.add("missed");
+        else if (isSelected && !isCorrectAnswer) div.classList.add("incorrect");
+      }
+
+      var indicatorClass = isMulti ? "answer-indicator checkbox" : "answer-indicator";
+      var checkmark = isMulti ? "✓" : "";
+
+      // Build answer inner HTML with tag
+      var innerHtml = '<div class="' + indicatorClass + '"><div class="dot">' + checkmark + '</div></div>';
+      innerHtml += '<div class="answer-text">' + formatAnswer(ans.text) + '</div>';
+
+      // Add copyable label tags when showing answers
+      if (showAnswer) {
+        if (isSelected && isCorrectAnswer) {
+          innerHtml += '<span class="answer-tag tag-correct">✓ Your Answer (Correct)</span>';
+        } else if (isSelected && !isCorrectAnswer) {
+          innerHtml += '<span class="answer-tag tag-wrong">✗ Your Answer (Wrong)</span>';
+        } else if (isCorrectAnswer && !isSelected) {
+          innerHtml += '<span class="answer-tag tag-missed">✓ Correct Answer</span>';
+        }
+      }
+
+      div.innerHTML = innerHtml;
+
+      if (!showAnswer) {
+        div.onclick = function() {
+          if (isMulti) {
+            var pos = userAnswers[currentQ].indexOf(idx);
+            if (pos >= 0) userAnswers[currentQ].splice(pos, 1);
+            else userAnswers[currentQ].push(idx);
+          } else {
+            userAnswers[currentQ] = [idx];
+          }
+          // Pulse animation
+          div.classList.add("just-selected");
+          setTimeout(function(){ div.classList.remove("just-selected"); }, 300);
+          renderQuestion();
+        };
+      }
+      container.appendChild(div);
+      
+      // Auto-highlight code blocks in this answer
+      var ansCodes = div.querySelectorAll(".answer-text code");
+      ansCodes.forEach(function(c) {
+          // If it doesn't already have highlighting classes...
+          if (!c.querySelector("span[class^='highlight-']")) {
+             c.innerHTML = highlightGeneric(c.textContent);
+          }
+      });
+      
+    })(i);
+  }
+
+  // Result banner (review mode)
+  var banner = document.getElementById("resultBanner");
+  if (showAnswer && userAnswers[currentQ].length > 0) {
+    var isRight = checkCorrect(currentQ);
+    banner.className = "result-banner show " + (isRight ? "banner-correct" : "banner-incorrect");
+    banner.textContent = isRight ? "✓ Correct!" : "✗ Incorrect";
+  } else {
+    banner.className = "result-banner";
+  }
+
+  // Check button (review mode only)
+  if (mode === "review" && !examFinished) {
+    var checkBtn = document.getElementById("checkBtn");
+    checkBtn.disabled = userAnswers[currentQ].length === 0 || isChecked;
+    checkBtn.textContent = isChecked ? "✓ Checked" : "Check Answer";
+  }
+
+  // Explanation
+  var expl = document.getElementById("explanation");
+  var explBody = document.getElementById("explanationBody");
+  if (showAnswer && prompt.explanation) {
+    explBody.innerHTML = prompt.explanation;
+    // Open links in new tab
+    var links = explBody.querySelectorAll("a");
+    for (var li = 0; li < links.length; li++) { links[li].setAttribute("target", "_blank"); links[li].setAttribute("rel", "noopener"); }
+    expl.classList.add("show");
+  } else {
+    expl.classList.remove("show");
+  }
+
+  // Nav buttons
+  document.getElementById("prevBtn").disabled = currentQ === 0;
+  var nextBtn = document.getElementById("nextBtn");
+  if (currentQ === questions.length - 1 && !examFinished) {
+    nextBtn.textContent = mode === "exam" ? "Finish Exam →" : "See Results →";
+  } else {
+    nextBtn.textContent = "Next →";
+  }
+  nextBtn.disabled = currentQ === questions.length - 1 && examFinished;
+
+  // Flag
+  var flagBtn = document.getElementById("flagBtn");
+  flagBtn.className = "bookmark-btn" + (flagged[currentQ] ? " bookmarked" : "");
+
+  updateGrid();
+  updateNavSummary();
+}
+
+function checkAnswer() {
+  if (checked[currentQ] || userAnswers[currentQ].length === 0) return;
+  checked[currentQ] = true;
+  updateLiveScore();
+  renderQuestion();
+}
+
+function navigate(dir) {
+  if (dir === 1 && currentQ === questions.length - 1 && !examFinished) {
+    endExam();
+    return;
+  }
+  currentQ = Math.max(0, Math.min(questions.length - 1, currentQ + dir));
+  renderQuestion();
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+function toggleFlag() {
+  flagged[currentQ] = !flagged[currentQ];
+  renderQuestion();
+}
+
+// ── End Exam ────────────────────────────────────────────────
+
+function endExam() {
+  if (mode === "exam") {
+    var answeredCount = userAnswers.filter(function(a) { return a.length > 0; }).length;
+    var unanswered = questions.length - answeredCount;
+    var flaggedCount = flagged.filter(Boolean).length;
+    var statsHtml = '<div class="modal-stats">' +
+      '<div class="modal-stat s-answered">✓ ' + answeredCount + ' answered</div>' +
+      '<div class="modal-stat s-unanswered">⊘ ' + unanswered + ' unanswered</div>' +
+      (flaggedCount > 0 ? '<div class="modal-stat s-flagged">🔖 ' + flaggedCount + ' flagged</div>' : '') +
+      '</div>';
+    showModal("🏁", "End Exam?", statsHtml + '<p style="color:#6b7280;font-size:13px">You cannot change your answers after submitting.</p>', "Submit Exam", function() {
+      closeModal();
+      clearInterval(timerInterval);
+      examFinished = true;
+      showScore();
+    }, function() { closeModal(); });
+    return;
+  }
+
+  clearInterval(timerInterval);
+  examFinished = true;
+  showScore();
+}
+
+// ── Custom Modal ────────────────────────────────────────────
+
+function showModal(icon, title, bodyHtml, confirmText, onConfirm, onCancel) {
+  var overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.id = "customModal";
+  var cancelBtn = onCancel ? '<button class="btn btn-outline" onclick="if(window._modalCancel) window._modalCancel()">Cancel</button>' : '';
+  overlay.innerHTML = '<div class="modal-card">' +
+    '<div class="modal-icon">' + icon + '</div>' +
+    '<div class="modal-title">' + title + '</div>' +
+    '<div class="modal-body">' + bodyHtml + '</div>' +
+    '<div class="modal-actions">' + cancelBtn +
+    '<button class="btn btn-primary" onclick="if(window._modalConfirm) window._modalConfirm()">' + confirmText + '</button>' +
+    '</div></div>';
+  document.body.appendChild(overlay);
+  window._modalConfirm = onConfirm;
+  window._modalCancel = onCancel;
+}
+
+function closeModal() {
+  var m = document.getElementById("customModal");
+  if (m) m.remove();
+  window._modalConfirm = null;
+  window._modalCancel = null;
+}
+
+function showScore() {
+  var correct = 0, incorrect = 0, skipped = 0;
+  var sections = {};
+
+  for (var i = 0; i < questions.length; i++) {
+    var q = questions[i];
+    var sec = q.section || "General";
+    if (!sections[sec]) sections[sec] = {correct: 0, total: 0};
+    sections[sec].total++;
+
+    if (userAnswers[i].length === 0) {
+      skipped++;
+    } else if (checkCorrect(i)) {
+      correct++;
+      sections[sec].correct++;
+    } else {
+      incorrect++;
+    }
+  }
+
+  var pct = Math.round(correct / questions.length * 100);
+  var passGoal = getPassPercent();
+  var pass = pct >= passGoal;
+
+  // Save attempt with FULL SNAPSHOT (expensive but needed for review)
+  var now = new Date();
+  var dateStr = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0") + " " + String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
+  
+  // Create snapshot of questions (so we know which answer was which if we reload)
+  var snapshot = questions.map(function(q) {
+     return {
+         prompt: q.prompt, 
+         _shuffledAnswers: q._shuffledAnswers,
+         _correctMapped: q._correctMapped,
+         _isMulti: q._isMulti,
+         section: q.section,
+         correct_response: q.correct_response, // needed?
+         assessment_type: q.assessment_type
+     };
+  });
+
+  saveAttempt({
+    date: dateStr,
+    mode: mode,
+    correct: correct,
+    incorrect: incorrect,
+    skipped: skipped,
+    total: questions.length,
+    pct: pct,
+    time: document.getElementById("timer").textContent, // capture final timer value
+    answers: userAnswers,
+    flagged: flagged,
+    snapshot: snapshot // heavy data!
+  });
+
+  document.getElementById("quizScreen").classList.add("hidden");
+  document.getElementById("scoreScreen").classList.remove("hidden");
+  document.getElementById("endExamBtn").classList.add("hidden");
+  document.getElementById("liveScore").classList.add("hidden");
+  document.getElementById("exitBtn").classList.add("hidden");
+
+  document.getElementById("scorePct").textContent = pct + "%";
+  document.getElementById("scoreStatus").textContent = pass ? "PASSED" : "NOT PASSED";
+  
+  // Animated ring
+  var ring = document.getElementById("scoreCircle");
+  var ringColor = pass ? "#10b981" : "#ef4444";
+  var degrees = Math.round(pct * 3.6);
+  ring.style.setProperty("--ring-color", ringColor);
+  ring.style.background = "conic-gradient(" + ringColor + " 0deg, #2d2f31 0deg)";
+  setTimeout(function() {
+    ring.style.transition = "background 1.2s ease-out";
+    ring.style.background = "conic-gradient(" + ringColor + " " + degrees + "deg, #2d2f31 " + degrees + "deg)";
+  }, 50);
+  
+  document.getElementById("scoreCorrect").textContent = correct;
+  document.getElementById("scoreIncorrect").textContent = incorrect;
+  document.getElementById("scoreSkipped").textContent = skipped;
+  var avgSec = Math.round(seconds > 0 ? seconds / questions.length : 0);
+  var avgStr = avgSec >= 60 ? Math.floor(avgSec/60) + "m " + (avgSec%60) + "s" : avgSec + "s";
+  document.getElementById("scoreTime").textContent = "⏱ Time: " + document.getElementById("timer").textContent + "  ·  avg " + avgStr + "/question";
+
+  // Trend line
+  var allAttempts = getAttempts();
+  var trendEl = document.getElementById("scoreTrend");
+  if (allAttempts.length > 1) {
+    var recent = allAttempts.slice(0, 5).reverse();
+    var tHtml = '<span style="font-size:12px;color:#6b7280">Trend:</span> ';
+    for (var t = 0; t < recent.length; t++) {
+      if (t > 0) tHtml += '<span class="trend-arrow">→</span> ';
+      var tc = recent[t].pct >= passGoal ? "pass" : "fail";
+      tHtml += '<span class="trend-dot ' + tc + '">' + recent[t].pct + '%</span> ';
+    }
+    trendEl.innerHTML = tHtml;
+  } else { trendEl.innerHTML = ""; }
+
+  // Section breakdown with bars
+  var bd = document.getElementById("sectionBreakdown");
+  bd.innerHTML = '<h3 style="margin-bottom:12px;font-size:16px;color:#a0a0a0">Section Breakdown</h3>';
+  var secKeys = Object.keys(sections).sort();
+  for (var j = 0; j < secKeys.length; j++) {
+    var secName = secKeys[j];
+    var s = sections[secName];
+    var sp = Math.round(s.correct / s.total * 100);
+    var color = sp >= passGoal ? "#10b981" : sp >= 50 ? "#f59e0b" : "#ef4444";
+    bd.innerHTML += '<div class="section-row">' +
+      '<div class="section-row-header"><span class="sec-name">' + secName + '</span><span class="sec-score" style="color:' + color + '">' + s.correct + '/' + s.total + ' (' + sp + '%)</span></div>' +
+      '<div class="section-bar"><div class="section-bar-fill" style="width:' + sp + '%;background:' + color + '"></div></div>' +
+      '</div>';
+  }
+}
+
+// ── Navigator Filters (Dropdowns) ───────────────────────────
+
+var activeFilter = "all";
+var activeSection = "all";
+var filteredIndices = [];
+
+function buildNavFilters() {
+  var container = document.getElementById("navFilters");
+  
+  // Collect sections
+  var sections = [];
+  var seenSections = {};
+  for (var i = 0; i < questions.length; i++) {
+    var sec = questions[i].section || "";
+    if (sec && !seenSections[sec]) {
+      seenSections[sec] = true;
+      sections.push(sec);
+    }
+  }
+  sections.sort();
+  
+  // Build question filter dropdown
+  var html = '<div class="filter-dropdown" id="questionFilterDD">';
+  html += '<button class="filter-dropdown-btn" onclick="toggleDropdown(\'questionFilterMenu\')">';
+  html += '<span id="questionFilterLabel">All questions</span> <span class="arrow">&#9660;</span></button>';
+  html += '<div class="filter-dropdown-menu" id="questionFilterMenu">';
+  html += buildFilterItems();
+  html += '</div></div>';
+  
+  // Build section dropdown (only if multiple sections)
+  if (sections.length > 1) {
+    html += '<div class="filter-dropdown" id="sectionFilterDD">';
+    html += '<button class="filter-dropdown-btn" onclick="toggleDropdown(\'sectionFilterMenu\')">';
+    html += '<span id="sectionFilterLabel">All domains</span> <span class="arrow">&#9660;</span></button>';
+    html += '<div class="filter-dropdown-menu" id="sectionFilterMenu">';
+    html += '<div class="filter-dropdown-item active" data-section="all" onclick="pickSection(\'all\')">All domains</div>';
+    for (var j = 0; j < sections.length; j++) {
+      var escaped = sections[j].replace(/"/g, '&quot;').replace(/'/g, "\\'");
+      html += '<div class="filter-dropdown-item" data-section="' + sections[j].replace(/"/g, '&quot;') + '" onclick="pickSection(\'' + escaped + '\')">' + sections[j] + '</div>';
+    }
+    html += '</div></div>';
+  }
+  
+  container.innerHTML = html;
+}
+
+function buildFilterItems() {
+  var items = '';
+  if (examFinished || (mode === "review")) {
+    // Post-exam or review: show result-based filters
+    items += '<div class="filter-dropdown-item active" data-filter="all" onclick="pickFilter(\'all\')">All questions</div>';
+    items += '<div class="filter-dropdown-item" data-filter="correct" onclick="pickFilter(\'correct\')">Correct</div>';
+    items += '<div class="filter-dropdown-item" data-filter="incorrect" onclick="pickFilter(\'incorrect\')">Incorrect</div>';
+    items += '<div class="filter-dropdown-item" data-filter="skipped" onclick="pickFilter(\'skipped\')">Skipped</div>';
+    items += '<div class="filter-dropdown-item" data-filter="flagged" onclick="pickFilter(\'flagged\')">Marked for review</div>';
+    items += '<div class="filter-dropdown-item" data-filter="unanswered" onclick="pickFilter(\'unanswered\')">Not answered yet</div>';
+  } else {
+    // During exam: show status-based filters
+    items += '<div class="filter-dropdown-item active" data-filter="all" onclick="pickFilter(\'all\')">All questions</div>';
+    items += '<div class="filter-dropdown-item" data-filter="answered" onclick="pickFilter(\'answered\')">Answered</div>';
+    items += '<div class="filter-dropdown-item" data-filter="unanswered" onclick="pickFilter(\'unanswered\')">Not answered yet</div>';
+    items += '<div class="filter-dropdown-item" data-filter="flagged" onclick="pickFilter(\'flagged\')">Marked for review</div>';
+  }
+  return items;
+}
+
+function toggleDropdown(menuId) {
+  var menu = document.getElementById(menuId);
+  var isOpen = menu.classList.contains("show");
+  // Close all dropdowns first
+  closeAllDropdowns();
+  if (!isOpen) menu.classList.add("show");
+}
+
+function closeAllDropdowns() {
+  var menus = document.querySelectorAll(".filter-dropdown-menu");
+  for (var i = 0; i < menus.length; i++) menus[i].classList.remove("show");
+}
+
+// Close dropdowns on outside click
+document.addEventListener("click", function(e) {
+  if (!e.target.closest(".filter-dropdown")) closeAllDropdowns();
+});
+
+function pickFilter(f) {
+  activeFilter = f;
+  closeAllDropdowns();
+  
+  // Update label
+  var labelMap = {all:"All questions", correct:"Correct", incorrect:"Incorrect", skipped:"Skipped", flagged:"Marked for review", unanswered:"Not answered yet", answered:"Answered"};
+  var el = document.getElementById("questionFilterLabel");
+  if (el) el.textContent = labelMap[f] || f;
+  
+  // Update active state in menu
+  var items = document.querySelectorAll("#questionFilterMenu .filter-dropdown-item");
+  for (var i = 0; i < items.length; i++) {
+    items[i].classList.toggle("active", items[i].getAttribute("data-filter") === f);
+  }
+  
+  applyFilters();
+  if (filteredIndices.length > 0 && filteredIndices.indexOf(currentQ) < 0) {
+    currentQ = filteredIndices[0];
+  }
+  renderQuestion();
+}
+
+function pickSection(s) {
+  activeSection = s;
+  closeAllDropdowns();
+  
+  var el = document.getElementById("sectionFilterLabel");
+  if (el) el.textContent = s === "all" ? "All domains" : s;
+  
+  var items = document.querySelectorAll("#sectionFilterMenu .filter-dropdown-item");
+  for (var i = 0; i < items.length; i++) {
+    items[i].classList.toggle("active", items[i].getAttribute("data-section") === s);
+  }
+  
+  applyFilters();
+  if (filteredIndices.length > 0 && filteredIndices.indexOf(currentQ) < 0) {
+    currentQ = filteredIndices[0];
+  }
+  renderQuestion();
+}
+
+function applyFilters() {
+  filteredIndices = [];
+  for (var i = 0; i < questions.length; i++) {
+    // Section filter
+    if (activeSection !== "all") {
+      var sec = questions[i].section || "";
+      if (sec !== activeSection) continue;
+    }
+    // Type filter
+    if (activeFilter === "correct") {
+      if (userAnswers[i].length === 0 || !checkCorrect(i)) continue;
+    } else if (activeFilter === "incorrect") {
+      if (userAnswers[i].length === 0 || checkCorrect(i)) continue;
+    } else if (activeFilter === "skipped") {
+      if (userAnswers[i].length > 0) continue;
+    } else if (activeFilter === "flagged") {
+      if (!flagged[i]) continue;
+    } else if (activeFilter === "unanswered") {
+      if (userAnswers[i].length > 0) continue;
+    } else if (activeFilter === "answered") {
+      if (userAnswers[i].length === 0) continue;
+    }
+    filteredIndices.push(i);
+  }
+  updateFilteredGrid();
+}
+
+function updateFilteredGrid() {
+  var dots = document.querySelectorAll(".q-dot");
+  for (var i = 0; i < dots.length; i++) {
+    if (activeFilter === "all" && activeSection === "all") {
+      dots[i].style.display = "";
+    } else {
+      dots[i].style.display = filteredIndices.indexOf(i) >= 0 ? "" : "none";
+    }
+  }
+}
+
+function reviewFromScore() {
+  document.getElementById("scoreScreen").classList.add("hidden");
+  document.getElementById("quizScreen").classList.remove("hidden");
+  document.getElementById("checkRow").classList.add("hidden");
+  document.getElementById("exitBtn").classList.remove("hidden");
+  activeFilter = "all";
+  activeSection = "all";
+  buildNavFilters();
+  applyFilters();
+  currentQ = filteredIndices.length > 0 ? filteredIndices[0] : 0;
+  renderQuestion();
+}
+
+function retakeExam() {
+  document.getElementById("scoreScreen").classList.add("hidden");
+  document.getElementById("startScreen").classList.remove("hidden");
+  document.getElementById("endExamBtn").classList.add("hidden");
+  document.getElementById("modeBadge").classList.add("hidden");
+  document.getElementById("liveScore").classList.add("hidden");
+  document.getElementById("timer").textContent = "00:00:00";
+  document.getElementById("timer").className = "timer";
+  document.getElementById("navFilters").innerHTML = "";
+  document.getElementById("navSummary").innerHTML = "";
+  activeFilter = "all";
+  activeSection = "all";
+  renderAttempts();
+  renderQuickStats();
+}
+
+// ── Navigator Summary Chips ─────────────────────────────────
+
+function updateNavSummary() {
+  var el = document.getElementById("navSummary");
+  if (!el || !questions.length) return;
+  var answeredN = 0, flaggedN = 0, correctN = 0, incorrectN = 0;
+  for (var i = 0; i < questions.length; i++) {
+    if (userAnswers[i].length > 0) answeredN++;
+    if (flagged[i]) flaggedN++;
+    if (examFinished) {
+      if (userAnswers[i].length > 0) {
+        if (checkCorrect(i)) correctN++; else incorrectN++;
+      }
+    }
+  }
+  var chips = '';
+  if (examFinished) {
+    chips += '<span class="nav-chip"><span class="chip-dot c-correct"></span> ' + correctN + ' correct</span>';
+    chips += '<span class="nav-chip"><span class="chip-dot c-incorrect"></span> ' + incorrectN + ' incorrect</span>';
+    chips += '<span class="nav-chip"><span class="chip-dot c-remaining"></span> ' + (questions.length - answeredN) + ' skipped</span>';
+  } else {
+    chips += '<span class="nav-chip"><span class="chip-dot c-answered"></span> ' + answeredN + ' answered</span>';
+    chips += '<span class="nav-chip"><span class="chip-dot c-remaining"></span> ' + (questions.length - answeredN) + ' remaining</span>';
+  }
+  if (flaggedN > 0) chips += '<span class="nav-chip"><span class="chip-dot c-flagged"></span> ' + flaggedN + ' marked</span>';
+  el.innerHTML = chips;
+}
+
+// ── Keyboard Navigation ─────────────────────────────────────
+
+document.addEventListener("keydown", function(e) {
+  // Don't handle if modal is open or quiz screen is hidden
+  if (document.getElementById("customModal")) return;
+  var quiz = document.getElementById("quizScreen");
+  if (!quiz || quiz.classList.contains("hidden")) return;
+
+  var key = e.key;
+  
+  // Arrow keys: navigate questions
+  if (key === "ArrowLeft") { e.preventDefault(); navigate(-1); }
+  else if (key === "ArrowRight") { e.preventDefault(); navigate(1); }
+  
+  // B: toggle bookmark
+  else if (key === "b" || key === "B") { e.preventDefault(); toggleFlag(); }
+  
+  // 1-9: select answer by number
+  else if (key >= "1" && key <= "9") {
+    var idx = parseInt(key) - 1;
+    var q = questions[currentQ];
+    if (idx < q._shuffledAnswers.length) {
+      var showAnswer = examFinished || (mode === "review" && checked[currentQ]);
+      if (!showAnswer) {
+        e.preventDefault();
+        if (q._isMulti) {
+          var pos = userAnswers[currentQ].indexOf(idx);
+          if (pos >= 0) userAnswers[currentQ].splice(pos, 1);
+          else userAnswers[currentQ].push(idx);
+        } else {
+          userAnswers[currentQ] = [idx];
+        }
+        renderQuestion();
+      }
+    }
+  }
+  
+  // Enter/Space: check answer (review mode)
+  else if (key === "Enter" || key === " ") {
+    if (mode === "review" && !examFinished && !checked[currentQ] && userAnswers[currentQ].length > 0) {
+      e.preventDefault();
+      checkAnswer();
+    }
+  }
+  
+  // Escape: close dropdowns
+  else if (key === "Escape") { closeAllDropdowns(); }
+});
+
+init();
+</script>
+</body>
+</html>

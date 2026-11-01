@@ -37,6 +37,11 @@
     .description { margin: 24px 0 32px; color: var(--muted); font-size: 15px; }
     .read { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 20px; border-top: 1px solid var(--line); color: var(--accent); font-size: 14px; font-weight: 650; }
     .arrow { font-size: 20px; font-weight: 400; }
+    .exam-tests { margin: auto 0 0; padding: 0; list-style: none; }
+    .exam-tests li { display: block; border-top: 1px solid var(--line); }
+    .exam-tests a { display: flex; justify-content: space-between; padding: 12px 0; color: var(--accent); font-size: 14px; text-decoration: none; }
+    .exam-tests a:hover { text-decoration: underline; }
+    .exam-tests a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
     footer { padding-block: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
     footer p { margin: 0; }
     @media (max-width: 640px) {
@@ -64,7 +69,7 @@
     <p class="intro">Nơi tổng hợp những ghi chú, tài liệu và sách đã chọn lọc. Chọn một nội dung để bắt đầu đọc và khám phá.</p>
     <nav aria-labelledby="contents-heading">
       <div class="section-heading">
-        <h2 id="contents-heading">Mục lục sách</h2>
+        <h2 id="contents-heading">Books</h2>
         <span class="count">03 cuốn sách</span>
       </div>
       <ol class="books">
@@ -97,6 +102,59 @@
         </li>
       </ol>
     </nav>
+    <section aria-labelledby="exam-heading">
+      <div class="section-heading">
+        <h2 id="exam-heading" lang="en">Exams</h2>
+        <span class="count">03 bộ đề · 18 bài thi</span>
+      </div>
+      <ol class="books">
+        <li>
+          <article class="book" aria-labelledby="exam-0-title">
+            <div class="book-top"><span class="number" aria-hidden="true">01</span><span class="tag">AWS</span></div>
+            <h3 id="exam-0-title" lang="en">AWS Certified Solutions Architect Associate — Practice Tests K</h3>
+            <p class="description">Bộ đề luyện thi AWS Solutions Architect Associate (K).</p>
+            <ul class="exam-tests" aria-label="Các đề thi trong AWS Certified Solutions Architect Associate — Practice Tests K">
+              <li><a href="pages/exams/aws-certified-solutions-architect-associate-practice-tests-k/001%20AWS%20Certified%20Solutions%20Architect%20Associate.html">Practice Test 1<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/aws-certified-solutions-architect-associate-practice-tests-k/002%20AWS%20Certified%20Solutions%20Architect%20Associate.html">Practice Test 2<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/aws-certified-solutions-architect-associate-practice-tests-k/003%20AWS%20Certified%20Solutions%20Architect%20Associate.html">Practice Test 3<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/aws-certified-solutions-architect-associate-practice-tests-k/004%20AWS%20Certified%20Solutions%20Architect%20Associate.html">Practice Test 4<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/aws-certified-solutions-architect-associate-practice-tests-k/005%20AWS%20Certified%20Solutions%20Architect%20Associate.html">Practice Test 5<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/aws-certified-solutions-architect-associate-practice-tests-k/006%20AWS%20Certified%20Solutions%20Architect%20Associate.html">Practice Test 6<span aria-hidden="true"> →</span></a></li>
+            </ul>
+          </article>
+        </li>
+        <li>
+          <article class="book" aria-labelledby="exam-1-title">
+            <div class="book-top"><span class="number" aria-hidden="true">02</span><span class="tag">AWS</span></div>
+            <h3 id="exam-1-title" lang="en">Practice Exams — AWS Certified Solutions Architect Associate</h3>
+            <p class="description">Bộ đề thực hành chứng chỉ AWS Solutions Architect Associate.</p>
+            <ul class="exam-tests" aria-label="Các đề thi trong Practice Exams — AWS Certified Solutions Architect Associate">
+              <li><a href="pages/exams/practice-exams-aws-certified-solutions-architect-associate/001%20Practice%20Test%20%231%20-%20AWS%20Certified%20Solutions%20Architect%20Associate.html">Practice Test 1<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/practice-exams-aws-certified-solutions-architect-associate/002%20Practice%20Test%20%232%20-%20AWS%20Certified%20Solutions%20Architect%20Associate.html">Practice Test 2<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/practice-exams-aws-certified-solutions-architect-associate/003%20Practice%20Test%20%233%20-%20AWS%20Certified%20Solutions%20Architect%20Associate.html">Practice Test 3<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/practice-exams-aws-certified-solutions-architect-associate/004%20Practice%20Test%20%234%20-%20AWS%20Certified%20Solutions%20Architect%20Associate.html">Practice Test 4<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/practice-exams-aws-certified-solutions-architect-associate/005%20Practice%20Test%20%235%20-%20AWS%20Certified%20Solutions%20Architect%20Associate.html">Practice Test 5<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/practice-exams-aws-certified-solutions-architect-associate/006%20Practice%20Test%20%236%20-%20AWS%20Certified%20Solutions%20Architect%20Associate.html">Practice Test 6<span aria-hidden="true"> →</span></a></li>
+            </ul>
+          </article>
+        </li>
+        <li>
+          <article class="book" aria-labelledby="exam-2-title">
+            <div class="book-top"><span class="number" aria-hidden="true">03</span><span class="tag">Scrum</span></div>
+            <h3 id="exam-2-title" lang="en">Professional Scrum Master (PSM) Certification Preparation</h3>
+            <p class="description">Bộ đề luyện thi chứng chỉ Professional Scrum Master (PSM).</p>
+            <ul class="exam-tests" aria-label="Các đề thi trong Professional Scrum Master (PSM) Certification Preparation">
+              <li><a href="pages/exams/professional-scrum-master-psm-certification-preparation/001%20Practice%20Test%20%231.html">Practice Test 1<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/professional-scrum-master-psm-certification-preparation/002%20Practice%20Test%20%232.html">Practice Test 2<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/professional-scrum-master-psm-certification-preparation/003%20Practice%20Test%20%233.html">Practice Test 3<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/professional-scrum-master-psm-certification-preparation/004%20Practice%20Test%20%234.html">Practice Test 4<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/professional-scrum-master-psm-certification-preparation/005%20Practice%20Test%20%235.html">Practice Test 5<span aria-hidden="true"> →</span></a></li>
+              <li><a href="pages/exams/professional-scrum-master-psm-certification-preparation/006%20Practice%20Test%20%236.html">Practice Test 6<span aria-hidden="true"> →</span></a></li>
+            </ul>
+          </article>
+        </li>
+      </ol>
+    </section>
   </main>
   <footer class="container"><p>Một góc nhỏ để đọc, học và suy ngẫm.</p></footer>
 </body>
